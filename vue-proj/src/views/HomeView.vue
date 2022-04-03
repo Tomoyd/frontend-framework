@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import LoadingComponentVue from '../components/LoadingComponent.vue';
-import { defineAsyncComponent, onMounted, provide, useAttrs } from 'vue';
+import { defineAsyncComponent, provide } from 'vue';
 import MyButton from '../components/MyButton.vue';
 import SlotDemo from '../components/SlotDemo.vue';
 import { useMouse } from '@/hooks/useMouse';
