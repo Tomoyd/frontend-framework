@@ -4,25 +4,27 @@ import {
   InheritanceInversionComponent,
   PropProxyComponent,
 } from './demos/higher-component';
+import TestSelector from './demos/testRedux/TestSelector';
+import TestStaticStore from './demos/testRedux/TestStaticStore';
 
 function App() {
-  const [count, setCount] = useState(0);
   useLayoutEffect(() => {
-    console.log('useLayout');
-    return () => {
-      console.log('useLayout>>clean', 1234);
-    };
+    // console.log('useLayout');
+    // return () => {
+    //   console.log('useLayout>>clean', 1234);
+    // };
   });
   useEffect(() => {
-    console.log('useEffect');
-    return () => {
-      console.log('useEffect>>clean');
-    };
+    // console.log('useEffect');
+    // return () => {
+    //   console.log('useEffect>>clean');
+    // };
   }, []);
   return (
     <div className='App'>
-      <div>{count}</div>
-      <button onClick={() => setCount(count + 1)}>add</button>
+      <TestSelector />
+      <TestStaticStore />
+
       <header className='App-header'>
         <PropProxyComponent />
         <InheritanceInversionComponent></InheritanceInversionComponent>
