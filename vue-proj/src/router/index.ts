@@ -23,6 +23,11 @@ const router = createRouter({
       name: 'store',
       component: () => import('../views/TestStore.vue'),
     },
+    {
+      path: '/v3',
+      name: 'v3',
+      component: () => import('../views/v3InProgress/V3View.vue'),
+    },
   ],
 });
 
