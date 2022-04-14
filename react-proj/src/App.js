@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import './App.css';
 import {
   InheritanceInversionComponent,
@@ -6,6 +6,7 @@ import {
 } from './demos/higher-component';
 import TestSelector from './demos/testRedux/TestSelector';
 import TestStaticStore from './demos/testRedux/TestStaticStore';
+import TestTransition from './demos/testTransition';
 
 function App() {
   useLayoutEffect(() => {
@@ -22,9 +23,9 @@ function App() {
   }, []);
   return (
     <div className='App'>
+      <TestTransition />
       <TestSelector />
       <TestStaticStore />
-
       <header className='App-header'>
         <PropProxyComponent />
         <InheritanceInversionComponent></InheritanceInversionComponent>
