@@ -3,7 +3,7 @@ import './index.css';
 export function FilterList({ names }) {
   const [query, setQuery] = useState('');
   const [highlight, setHighlight] = useState('');
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   //   const deferredValue = useDeferredValue(query);
   const changeHandler = ({ target: { value } }) => {
     console.log('value', value);
@@ -36,9 +36,9 @@ function ListItem({ name, highlight }) {
 }
 
 const TestTransition = () => {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState('');
-  const [show, setShow] = useState(true);
+  const [, setShow] = useState(true);
   const deferredValue = useDeferredValue(inputValue);
   console.log('deferredValue', deferredValue, 'inputValue', inputValue);
 
