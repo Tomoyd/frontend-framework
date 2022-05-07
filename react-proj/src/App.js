@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import './App.css';
 import {
   InheritanceInversionComponent,
@@ -9,6 +9,7 @@ import TestStaticStore from './demos/testRedux/TestStaticStore';
 import TestTransition from './demos/testTransition';
 
 function App() {
+  const ref = useRef();
   useLayoutEffect(() => {
     // console.log('useLayout');
     // return () => {
@@ -16,14 +17,15 @@ function App() {
     // };
   });
   useEffect(() => {
-    // console.log('useEffect');
+    console.log('ref>>>', ref);
     // return () => {
     //   console.log('useEffect>>clean');
     // };
   }, []);
+
   return (
     <div className='App'>
-      <TestTransition />
+      <TestTransition ref={ref} />
       <TestSelector />
       <TestStaticStore />
       <header className='App-header'>

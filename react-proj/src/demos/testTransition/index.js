@@ -52,7 +52,10 @@ const TestTransition = () => {
 
   return (
     <div>
-      <FilterList names={Array(10).fill('hello')}></FilterList>
+      <FilterList
+        onClick={handleClick}
+        names={Array(10).fill('hello')}
+      ></FilterList>
     </div>
   );
 };

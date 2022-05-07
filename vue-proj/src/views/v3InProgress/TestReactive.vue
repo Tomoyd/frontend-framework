@@ -4,6 +4,7 @@ const refPerson = ref({ name: 'ref' });
 
 // reactive 会深度遍历对ref进行解包
 const person = reactive({ name: 'tomo', ref: refPerson });
+
 //shallow 不会，那么访问时需要shallow.ref.value 方式访问
 const shallow = shallowReactive({ ref: refPerson });
 const personRaw = toRaw(person);
