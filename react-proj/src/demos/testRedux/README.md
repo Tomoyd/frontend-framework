@@ -232,3 +232,220 @@ createStore(reducer,preState,enhancer)
    }
 
    ```
+
+### ApplyMiddleware
+
+```JavaScript
+export default function applyMiddleware(
+  ...middlewares: Middleware[]
+): StoreEnhancer<any> {
+  return (createStore: StoreEnhancerStoreCreator) =>
+    <S, A extends AnyAction>(
+      reducer: Reducer<S, A>,
+      preloadedState?: PreloadedState<S>
+    ) => {
+      const store = createStore(reducer, preloadedState)
+      let dispatch: Dispatch = () => {
+        throw new Error(
+          'Dispatching while constructing your middleware is not allowed. ' +
+            'Other middleware would not be applied to this dispatch.'
+        )
+      }
+
+      const middlewareAPI: MiddlewareAPI = {
+        getState: store.getState,
+        dispatch: (action, ...args) => dispatch(action, ...args)
+      }
+      const chain = middlewares.map(middleware => middleware(middlewareAPI))
+      dispatch = compose<typeof dispatch>(...chain)(store.dispatch)
+
+      return {
+        ...store,
+        dispatch
+      }
+    }
+}
+
+```
+
+1. 传入一个中间件列表参数，返回一个 enhancer（接收 createStore 为入参的，返回 store 函数）
+2. 对每个 middleware 传入 getState 和 dispatch 参数， 获取到新的 chain 列表
+3. 对闭包中间件列表进行 compose 所有的中间件得到一个函数，将 store.dispatch 传如这个函数得到增强函数，
+4. 将增强的 dispatch 和 store 合并 返回 新的 store
+
+middleware 都是一下形势
+
+```Javascript
+// store 只有getState 和dispatch两个, next形式就是action=>....
+const middleware=(store)=> next=> action=>{
+      /** */
+      next(action);
+}
+
+```
+
+compose
+上一个函数的参数是下一个函数执行结果 next 且返回一个 ，参数是 next 函数的的函数
+
+```TypeScript
+export default function compose(...funcs: Function[]) {
+if (funcs.length === 0) {
+// infer the argument type so it is usable in inference down the line
+return <T>(arg: T) => arg
+}
+
+if (funcs.length === 1) {
+  return funcs[0]
+}
+
+/**  ...args 可以理解为就是一个[next] **/
+return funcs.reduce(
+(a, b) =>
+  (..args) =>
+  a(b(...args))
+  )
+}
+
+```
+
+### combineReducers
+
+就将 reducer 聚合到一个对象上，达到分片处理的目的，合成一个大的 reducer，
+每次会遍历这个对象所有 key 值对应的 reducer
+
+得到当前 key 所有的 state，reducer 执行获取当前 key 的 state
+并判断当前 state 与之前的是否相等，如果有一个不相等则 hasChange 为 true
+
+遍历完后，判断 ReducerKey 的长度是否与 state 长度相等，如果不等 hasChange 则为 true，
+
+最后 hasChanged 为 true 则 返回 newState 否则返回 原来的 state
+
+```TypeScript
+  export default function combineReducers(reducers: ReducersMapObject) {
+  const reducerKeys = Object.keys(reducers)
+  const finalReducers: ReducersMapObject = {}
+  for (let i = 0; i < reducerKeys.length; i++) {
+    const key = reducerKeys[i]
+
+    if (process.env.NODE_ENV !== 'production') {
+      if (typeof reducers[key] === 'undefined') {
+        warning(`No reducer provided for key "${key}"`)
+      }
+    }
+
+    if (typeof reducers[key] === 'function') {
+      finalReducers[key] = reducers[key]
+    }
+  }
+  const finalReducerKeys = Object.keys(finalReducers)
+
+  // This is used to make sure we don't warn about the same
+  // keys multiple times.
+  let unexpectedKeyCache: { [key: string]: true }
+  if (process.env.NODE_ENV !== 'production') {
+    unexpectedKeyCache = {}
+  }
+
+  let shapeAssertionError: unknown
+  try {
+    assertReducerShape(finalReducers)
+  } catch (e) {
+    shapeAssertionError = e
+  }
+
+  return function combination(
+    state: StateFromReducersMapObject<typeof reducers> = {},
+    action: AnyAction
+  ) {
+    if (shapeAssertionError) {
+      throw shapeAssertionError
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      const warningMessage = getUnexpectedStateShapeWarningMessage(
+        state,
+        finalReducers,
+        action,
+        unexpectedKeyCache
+      )
+      if (warningMessage) {
+        warning(warningMessage)
+      }
+    }
+
+    let hasChanged = false
+    const nextState: StateFromReducersMapObject<typeof reducers> = {}
+    for (let i = 0; i < finalReducerKeys.length; i++) {
+      const key = finalReducerKeys[i]
+      const reducer = finalReducers[key]
+      const previousStateForKey = state[key]
+      const nextStateForKey = reducer(previousStateForKey, action)
+      if (typeof nextStateForKey === 'undefined') {
+        const actionType = action && action.type
+        throw new Error(
+          `When called with an action of type ${
+            actionType ? `"${String(actionType)}"` : '(unknown type)'
+          }, the slice reducer for key "${key}" returned undefined. ` +
+            `To ignore an action, you must explicitly return the previous state. ` +
+            `If you want this reducer to hold no value, you can return null instead of undefined.`
+        )
+      }
+      nextState[key] = nextStateForKey
+      hasChanged = hasChanged || nextStateForKey !== previousStateForKey
+    }
+    hasChanged =
+      hasChanged || finalReducerKeys.length !== Object.keys(state).length
+    return hasChanged ? nextState : state
+  }
+}
+
+```
+
+### bindActionCreates
+
+bindActionCreator
+如果是一个函数，和一个 dispatch 则返回一个函数，dispatch(actionCreator)
+
+```TypeScript
+function bindActionCreator<A extends AnyAction = AnyAction>(
+  actionCreator: ActionCreator<A>,
+  dispatch: Dispatch
+) {
+  return function (this: any, ...args: any[]) {
+    return dispatch(actionCreator.apply(this, args))
+  }
+}
+```
+
+如果是一个对象则返回一个对象 每个 key 对应一个 bindActionCreator 执行结果
+
+如果是一个函数 则直接调用 bindActionCreator
+
+```TypeScript
+export default function bindActionCreators(
+  actionCreators: ActionCreator<any> | ActionCreatorsMapObject,
+  dispatch: Dispatch
+) {
+  if (typeof actionCreators === 'function') {
+    return bindActionCreator(actionCreators, dispatch)
+  }
+
+  if (typeof actionCreators !== 'object' || actionCreators === null) {
+    throw new Error(
+      `bindActionCreators expected an object or a function, but instead received: '${kindOf(
+        actionCreators
+      )}'. ` +
+        `Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?`
+    )
+  }
+
+  const boundActionCreators: ActionCreatorsMapObject = {}
+  for (const key in actionCreators) {
+    const actionCreator = actionCreators[key]
+    if (typeof actionCreator === 'function') {
+      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch)
+    }
+  }
+  return boundActionCreators
+}
+```
