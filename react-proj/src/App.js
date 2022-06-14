@@ -7,7 +7,7 @@ import {
 import TestSelector from './demos/testRedux/TestSelector';
 import TestStaticStore from './demos/testRedux/TestStaticStore';
 import TestTransition from './demos/testTransition';
-
+import ScorePanel from './demos/bestContext/ScorePanel';
 function App() {
   const ref = useRef();
   useLayoutEffect(() => {
@@ -25,6 +25,7 @@ function App() {
 
   return (
     <div className='App'>
+      <ScorePanel></ScorePanel>
       <TestTransition ref={ref} />
       <TestSelector />
       <TestStaticStore />
