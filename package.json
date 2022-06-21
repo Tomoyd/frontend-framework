@@ -1,0 +1,26 @@
+{
+  "name": "frontend-framework",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/tomoyd/frontend-framework.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomoyd/frontend-framework/issues"
+  },
+  "homepage": "https://github.com/tomoyd/frontend-framework#readme",
+  "dependencies": {
+    "highcharts": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/highcharts": "^7.0.0"
+  }
+}

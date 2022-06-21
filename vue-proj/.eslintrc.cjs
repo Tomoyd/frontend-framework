@@ -25,6 +25,8 @@ module.exports = {
         math: 'always',
       },
     ],
+    'arrow-body-style': 'off',
+    'prefer-arrow-callback': 'off',
     'prettier/prettier': [
       'error',
       { singleQuote: true, semi: true },

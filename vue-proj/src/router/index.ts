@@ -28,6 +28,11 @@ const router = createRouter({
       name: 'v3',
       component: () => import('../views/v3InProgress/V3View.vue'),
     },
+    {
+      path: '/kLine',
+      name: 'kLine',
+      component: () => import('../views/charts/kLine/KLine.vue'),
+    },
   ],
 });
 
