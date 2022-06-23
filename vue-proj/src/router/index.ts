@@ -29,7 +29,7 @@ const router = createRouter({
       component: () => import('../views/v3InProgress/V3View.vue'),
     },
     {
-      path: '/kLine',
+      path: '/kline',
       name: 'kLine',
       component: () => import('../views/charts/kLine/KLine.vue'),
     },
