@@ -74,6 +74,7 @@ function createKLine({ ohlc, volume, groupingUnits }: KlineOptions) {
   });
 }
 onMounted(() => {
+  // 缓存
   const hData = (window as any)._hData as KlineOptions;
   if (hData) {
     createKLine(hData);
