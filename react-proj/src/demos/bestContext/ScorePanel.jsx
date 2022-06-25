@@ -7,7 +7,6 @@ import {
 
 const ScoreButton = () => {
   const { increaseScore, decreaseScore } = useScoreApiContext();
-  console.log('1111 :>> ', 1111);
   return (
     <>
       <button onClick={increaseScore}>increase</button>

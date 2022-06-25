@@ -1,38 +1,22 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { Suspense } from 'react';
 import './App.css';
-import {
-  InheritanceInversionComponent,
-  PropProxyComponent,
-} from './demos/higher-component';
-import TestSelector from './demos/testRedux/TestSelector';
-import TestStaticStore from './demos/testRedux/TestStaticStore';
-import TestTransition from './demos/testTransition';
-import ScorePanel from './demos/bestContext/ScorePanel';
-function App() {
-  const ref = useRef();
-  useLayoutEffect(() => {
-    // console.log('useLayout');
-    // return () => {
-    //   console.log('useLayout>>clean', 1234);
-    // };
-  });
-  useEffect(() => {
-    console.log('ref>>>', ref);
-    // return () => {
-    //   console.log('useEffect>>clean');
-    // };
-  }, []);
 
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { routes } from './router';
+function App() {
   return (
     <div className='App'>
-      <ScorePanel></ScorePanel>
-      <TestTransition ref={ref} />
-      <TestSelector />
-      <TestStaticStore />
-      <header className='App-header'>
-        <PropProxyComponent />
-        <InheritanceInversionComponent></InheritanceInversionComponent>
-      </header>
+      <Suspense>
+        <Router>
+          <Routes>
+            {routes.map(({ path, Component }) => {
+              return (
+                <Route path={path} element={<Component />} key={path}></Route>
+              );
+            })}
+          </Routes>
+        </Router>
+      </Suspense>
     </div>
   );
 }
