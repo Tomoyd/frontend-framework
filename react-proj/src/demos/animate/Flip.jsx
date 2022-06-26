@@ -76,6 +76,8 @@ const Operate = () => {
   );
 };
 
+// FLIP css 实现思路，First Last Invert Play
+
 const Flip = () => {
   return (
     <ItemContextProvider>
