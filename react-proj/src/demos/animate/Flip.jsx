@@ -45,6 +45,7 @@ const useAnimation = (nodes) => {
     });
   });
 };
+
 const ListItems = () => {
   const items = useItemContext();
   const listRef = useRef(null);
@@ -63,7 +64,7 @@ const ListItems = () => {
 };
 
 const Operate = () => {
-  const { add, shuffle } = useItemOperateContext();
+  const { add, shuffle, reset } = useItemOperateContext();
   return (
     <div className='operate'>
       <button onClick={add} className='btn'>
@@ -71,6 +72,9 @@ const Operate = () => {
       </button>
       <button onClick={shuffle} className='btn'>
         打乱
+      </button>
+      <button onClick={reset} className='btn'>
+        重置
       </button>
     </div>
   );

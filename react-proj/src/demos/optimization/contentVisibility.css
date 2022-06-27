@@ -1,0 +1,11 @@
+.container{
+    content-visibility: hidden;
+    min-width: 20px;
+    min-height: 20px;
+    background-color: aqua;
+}
+
+.content{
+    width: 40px;
+    height: 40px;
+}
