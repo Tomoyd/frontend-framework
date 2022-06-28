@@ -33,6 +33,11 @@ const router = createRouter({
       name: 'kLine',
       component: () => import('../views/charts/kLine/KLine.vue'),
     },
+    {
+      path: '/3d/base',
+      name: '3d-base',
+      component: () => import('../views/3D/Base.vue'),
+    },
   ],
 });
 

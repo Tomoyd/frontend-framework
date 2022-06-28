@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/tomoyd/frontend-framework#readme",
   "dependencies": {
-    "highcharts": "^10.1.0"
+    "@types/three": "^0.141.0",
+    "highcharts": "^10.1.0",
+    "three": "^0.141.0"
   },
   "devDependencies": {
     "@types/highcharts": "^7.0.0"
