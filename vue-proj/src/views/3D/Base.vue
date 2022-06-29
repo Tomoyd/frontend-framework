@@ -38,8 +38,8 @@ function createCube() {
   return new THREE.Mesh(geometry, material);
 }
 
-function createText() {
-  return new TextGeometry('', {});
+function createText(text) {
+  return new TextGeometry(text, {});
 }
 
 function init() {
