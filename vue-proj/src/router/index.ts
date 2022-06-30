@@ -38,6 +38,11 @@ const router = createRouter({
       name: '3d-base',
       component: () => import('../views/3D/Base.vue'),
     },
+    {
+      path: '/3d/panorama',
+      name: '3d-panorama',
+      component: () => import('../views/3D/Panorama.vue'),
+    },
   ],
 });
 
