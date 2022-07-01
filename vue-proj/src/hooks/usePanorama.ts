@@ -1,6 +1,13 @@
-import { onMounted, onUnmounted, watchEffect } from 'vue';
+import { watchEffect } from 'vue';
 import * as THREE from 'three';
 
+function debounce(fn: () => void, delay = 50) {
+  let timer: number;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(), delay);
+  };
+}
 function create3DContainer(selector: string) {
   const scene = new THREE.Scene();
   const { innerHeight, innerWidth } = window;
@@ -12,13 +19,12 @@ function create3DContainer(selector: string) {
   );
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(innerWidth, innerHeight);
-  document.getElementById(selector)?.appendChild(renderer.domElement);
+
   function resize() {
     const { innerHeight, innerWidth } = window;
     camera.aspect = innerWidth / innerHeight;
-    renderer.setSize(innerHeight, innerWidth);
+    renderer.setSize(innerWidth, innerHeight);
     camera.updateProjectionMatrix();
-    render();
   }
 
   function render() {
@@ -28,9 +34,11 @@ function create3DContainer(selector: string) {
     requestAnimationFrame(loopRender);
     render();
   }
+
+  document.getElementById(selector)?.appendChild(renderer.domElement);
   render();
 
-  return { render, loopRender, resize };
+  return { render, loopRender, resize: debounce(resize) };
 }
 export const usePanorama = (selector = 'container') => {
   watchEffect(
