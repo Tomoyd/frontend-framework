@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from 'vue-router';
 
 <template>
   <div>
-    <header>
+    <header v-if="$route.name !== '3d-panorama'">
       <img
         alt="Vue logo"
         class="logo"
@@ -27,8 +27,10 @@ import { RouterLink, RouterView } from 'vue-router';
 </template>
 
 <style>
-#app {
-  padding: 2rem;
+html,
+body {
+  padding: 0;
+  margin: 0;
 }
 
 header {
