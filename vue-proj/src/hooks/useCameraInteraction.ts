@@ -9,11 +9,17 @@ export const useCameraInteraction = () => {
   let lat = 0;
   let userStartLon = 0;
   let userStartLat = 0;
-  let userStartX = 0;
-  let userStartY = 0;
+  let userStartX = window.innerWidth / 2;
+  let userStartY = window.innerHeight / 2;
   useWindowListener(window, 'mousemove', (event) => {
     mouse.x = (event.pageX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.pageY / window.innerHeight) * 2 + 1;
+    if (
+      Math.abs(userStartX - event.pageX) + Math.abs(event.pageY - userStartY) <
+      0.2
+    ) {
+      return;
+    }
     if (isUserOperate) {
       lon = (userStartX - event.pageX) * 0.1 + userStartLon;
       lat = (event.pageY - userStartY) * 0.1 + userStartLat;

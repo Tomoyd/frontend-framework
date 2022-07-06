@@ -12,7 +12,7 @@ function debounce(fn: () => void, delay = 50) {
   };
 }
 function createPanorama(fn: () => void) {
-  const sphereGeometry = new THREE.SphereGeometry(800, 60, 60);
+  const sphereGeometry = new THREE.SphereGeometry(1000, 60, 60);
   sphereGeometry.scale(1, 1, -1);
   const outLowMaterial = new THREE.MeshBasicMaterial({
     map: new THREE.TextureLoader().load('/src/assets/images/outside.jpg', fn),
@@ -21,6 +21,7 @@ function createPanorama(fn: () => void) {
   const insideMaterial = new THREE.MeshBasicMaterial({
     map: new TextureLoader().load('/src/assets/images/inside_low.jpg'),
   });
+
   return new THREE.Mesh(sphereGeometry, outLowMaterial);
 }
 function create3DContainer(selector: string) {
@@ -50,7 +51,7 @@ function create3DContainer(selector: string) {
   renderer.setSize(innerWidth, innerHeight);
 
   function lookAt(x = 0, y = 0, z = 0) {
-    camera.lookAt(600 * x, 600 * y, 600 * z);
+    camera.lookAt(500 * x, 0, 500 * z);
     camera.updateProjectionMatrix();
     requestAnimationFrame(render);
   }
@@ -59,6 +60,7 @@ function create3DContainer(selector: string) {
     camera.aspect = innerWidth / innerHeight;
     renderer.setSize(innerWidth, innerHeight);
     camera.updateProjectionMatrix();
+    render();
   }
 
   function render() {
@@ -71,6 +73,7 @@ function create3DContainer(selector: string) {
 
   function mount() {
     document.getElementById(selector)?.appendChild(renderer.domElement);
+    lookAt(...getCameraFocus(0, 0));
     render();
   }
 
