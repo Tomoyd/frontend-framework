@@ -5,7 +5,7 @@
 import { onMounted } from 'vue';
 import * as THREE from 'three';
 class TextGeometry extends THREE.ExtrudeGeometry {
-  constructor(text, parameters) {
+  constructor(text: string, parameters) {
     const font = parameters.font;
 
     if (font === undefined) {
@@ -38,7 +38,7 @@ function createCube() {
   return new THREE.Mesh(geometry, material);
 }
 
-function createText(text) {
+function createText(text: string) {
   return new TextGeometry(text, {});
 }
 
@@ -49,7 +49,7 @@ function init() {
   renderer.setSize(400, 200);
   document.getElementById('container')?.appendChild(renderer.domElement);
 
-  function addCube(cube) {
+  function addCube(cube: THREE.Object3D) {
     scene.add(cube);
   }
   function renderMesh() {
@@ -67,7 +67,7 @@ function init() {
     return new THREE.Line(geometry, material);
   }
 
-  function addLine(line) {
+  function addLine(line: THREE.Object3D) {
     scene.add(line);
   }
   function render() {
