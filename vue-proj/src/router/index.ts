@@ -43,6 +43,11 @@ const router = createRouter({
       name: '3d-panorama',
       component: () => import('../views/3D/Panorama.vue'),
     },
+    {
+      path: '/three/scene',
+      name: 'three-scene',
+      component: () => import('../views/three/SceneDemo.vue'),
+    },
   ],
 });
 

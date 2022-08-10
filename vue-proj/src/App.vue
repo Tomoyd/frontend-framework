@@ -4,24 +4,6 @@ import { RouterLink, RouterView } from 'vue-router';
 
 <template>
   <div>
-    <header v-if="$route.name !== '3d-panorama'">
-      <img
-        alt="Vue logo"
-        class="logo"
-        src="@/assets/logo.svg"
-        width="125"
-        height="125"
-      />
-
-      <div class="wrapper">
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-          <RouterLink to="/store">Store</RouterLink>
-          <RouterLink to="/kline">KLine</RouterLink>
-        </nav>
-      </div>
-    </header>
     <div><RouterView /></div>
   </div>
 </template>
