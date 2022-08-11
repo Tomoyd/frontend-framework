@@ -1,6 +1,5 @@
 import { onMounted } from 'vue';
 import * as THREE from 'three';
-import { MeshBasicMaterial, MeshStandardMaterial } from 'three';
 
 const {
   AmbientLight,
@@ -15,26 +14,26 @@ const {
   Vector3,
   WebGLRenderer,
 } = THREE;
-function createMultiMaterialObject(
+export function createMultiMaterialObject<T extends THREE.Material>(
   geometry: THREE.BufferGeometry,
-  materials: THREE.Material[]
+  materials: T[]
 ) {
   const group = new THREE.Group();
 
   for (let i = 0, l = materials.length; i < l; i++) {
     const mesh = new Mesh(geometry, materials[i]);
-    mesh.castShadow = true;
+    // mesh.castShadow = true;
 
     group.add(mesh);
 
-    group.castShadow = true;
+    // group.castShadow = true;
   }
-  const geometry2 = new THREE.BoxGeometry(15, 30, 30);
+  // const geometry2 = new THREE.BoxGeometry(15, 30, 30);
 
-  //  THREE.WireframeGeometry
+  // //  THREE.WireframeGeometry
 
-  const line = new THREE.LineSegments(new THREE.EdgesGeometry(geometry2));
-  line.material.color.set(0xff0000);
+  const line = new THREE.LineSegments(new THREE.EdgesGeometry(geometry));
+  (line.material as THREE.LineBasicMaterial).color.set(0xff0000);
   group.add(line);
 
   return group;
@@ -72,7 +71,7 @@ export function useThree(id: string) {
     45,
     window.innerWidth / window.innerHeight,
     0.1,
-    1000
+    500
   );
 
   perspectiveCamera.position.set(0, -50, 50);
@@ -81,7 +80,7 @@ export function useThree(id: string) {
   const renderer = new WebGLRenderer();
   renderer.render(scene, perspectiveCamera);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(new THREE.Color(0xeeeeee));
+  renderer.setClearColor(new THREE.Color(0x333333));
   renderer.shadowMap.enabled = true;
   //   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   function addSpotLight() {
@@ -117,7 +116,8 @@ export function useThree(id: string) {
 
   function render() {
     renderer.render(scene, perspectiveCamera);
-    // window.requestAnimationFrame(render);
+
+    window.requestAnimationFrame(render);
   }
 
   function getOjectByName(name: string) {
@@ -134,10 +134,14 @@ export function useThree(id: string) {
     scene.add(createLineCube());
   }
 
+  function add(cube: THREE.Object3D) {
+    scene.add(cube);
+  }
+
   onMounted(() => {
     document.getElementById(id || 'three')?.appendChild(renderer.domElement);
-    addPlane();
-    addSpotLight();
+    // addPlane();
+    // addSpotLight();
     // scene.background = new THREE.Color(0xe5e5e5);
 
     // scene.fog = new Fog(0xffff00, 60, 90);
@@ -146,5 +150,5 @@ export function useThree(id: string) {
     window.requestAnimationFrame(render);
   });
 
-  return { render, addSpotLight, addPlane, addCustomGeometry };
+  return { render, addSpotLight, addPlane, addCustomGeometry, add };
 }
