@@ -50,6 +50,14 @@ export function customGeometry() {
   const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
   return new Mesh(geometry, material);
 }
+type Item = [number, number, number];
+export function createLineGeometry(vertices: Item[] = []) {
+  const points = vertices.map((item) => new THREE.Vector3(...item));
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  // const vertices = new Float32Array([...vertice]);
+  // geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  return geometry;
+}
 
 function createLineCube() {
   const materials = [
@@ -116,8 +124,7 @@ export function useThree(id: string) {
 
   function render() {
     renderer.render(scene, perspectiveCamera);
-
-    window.requestAnimationFrame(render);
+    // window.requestAnimationFrame(render);
   }
 
   function getOjectByName(name: string) {
