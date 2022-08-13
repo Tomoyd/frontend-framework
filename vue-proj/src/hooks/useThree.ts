@@ -85,7 +85,7 @@ export function useThree(id: string) {
   perspectiveCamera.position.set(0, -50, 50);
   perspectiveCamera.lookAt(scene.position);
 
-  const renderer = new WebGLRenderer();
+  const renderer = new WebGLRenderer({ antialias: true });
   renderer.render(scene, perspectiveCamera);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(new THREE.Color(0x333333));

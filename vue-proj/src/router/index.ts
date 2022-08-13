@@ -54,6 +54,11 @@ const router = createRouter({
       name: 'materials',
       component: () => import('../views/three/MaterialsDemo.vue'),
     },
+    {
+      path: '/three/geometry',
+      name: 'geometry',
+      component: () => import('../views/three/GeometryDemo.vue'),
+    },
   ],
 });
 

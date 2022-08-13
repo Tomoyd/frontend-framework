@@ -166,9 +166,11 @@ function lineMaterials() {
 
   return { lineBasic, lineDashed };
 }
-function createCube<T extends THREE.Material>(
-  material: T | T[],
-  geometry?: THREE.ShapeGeometry
+function createCube(
+  material?: THREE.Material | THREE.Material[] = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+  }),
+  geometry?: THREE.ShapeGeometry | THREE.BufferGeometry
 ) {
   if (!geometry) {
     geometry = new THREE.BoxGeometry(10, 10, 10);
