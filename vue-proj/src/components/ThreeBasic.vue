@@ -26,7 +26,11 @@
 <script lang="ts" setup>
 import SelectBasic from '@/components/SelectBasic.vue';
 import { useThreeContainer } from '@/hooks/useThreeContainer';
+import { onMounted } from 'vue';
 console.log('1233', 1233);
 const { materialOptions, materialType, geoOptions, geoType, toggleRotate } =
   useThreeContainer();
+onMounted(() => {
+  console.log('threeBasic');
+});
 </script>

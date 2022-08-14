@@ -192,6 +192,7 @@ function init() {
   cube = createCubeByBasic(geoOptions[geoType.value]);
   three.add(cube);
   three.add(new AmbientLight(0xff0000));
+  three.mount();
 }
 
 function getToggle() {

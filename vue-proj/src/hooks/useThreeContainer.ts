@@ -10,9 +10,7 @@ import { AmbientLight, Mesh, MeshBasicMaterial } from 'three';
 import { onMounted } from 'vue';
 
 const getContainerHook = () => {
-  let hasInited = false;
   function init() {
-    hasInited = true;
     const createCubeByBasic = createCubeByGeometry(
       new MeshBasicMaterial({ color: 0xffff00 })
     );
@@ -21,10 +19,14 @@ const getContainerHook = () => {
     three.add(new AmbientLight(0xff0000));
     three.mount();
   }
+
   function getToggle() {
     let isLoop = false;
     const removeEffects: (() => void)[] = [];
     function toggleRotate() {
+      if (!cube) {
+        return;
+      }
       if (isLoop) {
         isLoop = false;
         removeEffects.forEach((f) => f());
@@ -63,13 +65,10 @@ const getContainerHook = () => {
     'basic'
   );
 
-  const { toggleRotate } = getToggle();
-  function addGeometry<T extends string>(key: T, geo: THREE.BufferGeometry) {
-    const options = { ...geoOptions, [key]: geo };
-  }
   let fn = onMounted;
-  const containerHook = () => {
-    fn(init);
+  const { toggleRotate } = getToggle();
+  const containerHook = (needInit = true) => {
+    fn(needInit ? init : () => false);
     fn = () => false;
     return {
       toggleRotate,

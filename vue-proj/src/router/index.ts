@@ -64,6 +64,11 @@ const router = createRouter({
       name: 'sprite',
       component: () => import('../views/three/SpriteDemo.vue'),
     },
+    {
+      path: '/three/group',
+      name: 'group',
+      component: () => import('../views/three/GroupLoader.vue'),
+    },
   ],
 });
 
