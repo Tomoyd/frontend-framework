@@ -1,6 +1,8 @@
 import { onMounted } from 'vue';
 import * as THREE from 'three';
 
+type Void = () => void;
+
 const {
   AmbientLight,
   Fog,
@@ -73,7 +75,7 @@ function createLineCube() {
   return createMultiMaterialObject(geometry, materials);
 }
 
-export function useThree(id: string) {
+export function useThree(id?: string) {
   const scene = new Scene();
   const perspectiveCamera = new PerspectiveCamera(
     45,
@@ -81,7 +83,6 @@ export function useThree(id: string) {
     0.1,
     500
   );
-
   perspectiveCamera.position.set(0, -50, 50);
   perspectiveCamera.lookAt(scene.position);
 
@@ -90,7 +91,33 @@ export function useThree(id: string) {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(new THREE.Color(0x333333));
   renderer.shadowMap.enabled = true;
-  //   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  let renderHandle = 0;
+
+  function createEffects() {
+    const renderEffects: Void[] = [];
+    function addEffects(fn: Void) {
+      renderEffects.push(fn);
+      return () => removeEffect(fn);
+    }
+    function removeEffect(fn: Void) {
+      const index = renderEffects.findIndex(fn);
+      renderEffects.splice(index, 1);
+    }
+
+    function getEffects() {
+      return renderEffects;
+    }
+
+    return {
+      getEffects,
+      addEffects,
+      removeEffect,
+    };
+  }
+
+  const renderEffectStore = createEffects();
+
   function addSpotLight() {
     const spotLight = new SpotLight(0xffffff, 1.2, 100, 60);
     spotLight.position.set(10, 30, 28);
@@ -124,7 +151,16 @@ export function useThree(id: string) {
 
   function render() {
     renderer.render(scene, perspectiveCamera);
-    // window.requestAnimationFrame(render);
+    renderEffectStore.getEffects().forEach((f) => f());
+  }
+
+  function loopRender() {
+    render();
+    renderHandle = window.requestAnimationFrame(loopRender);
+  }
+
+  function stopLoopRender() {
+    window.cancelAnimationFrame(renderHandle);
   }
 
   function getOjectByName(name: string) {
@@ -145,17 +181,20 @@ export function useThree(id: string) {
     scene.add(cube);
   }
 
-  onMounted(() => {
+  function mount() {
     document.getElementById(id || 'three')?.appendChild(renderer.domElement);
-    // addPlane();
-    // addSpotLight();
-    // scene.background = new THREE.Color(0xe5e5e5);
-
-    // scene.fog = new Fog(0xffff00, 60, 90);
-    // scene.fog = new FogExp2(0xff0000, 0.01);
-
     window.requestAnimationFrame(render);
-  });
+  }
 
-  return { render, addSpotLight, addPlane, addCustomGeometry, add };
+  return {
+    render,
+    addSpotLight,
+    addPlane,
+    addCustomGeometry,
+    add,
+    loopRender,
+    stopLoopRender,
+    renderEffectStore,
+    mount,
+  };
 }

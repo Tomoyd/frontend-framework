@@ -59,6 +59,11 @@ const router = createRouter({
       name: 'geometry',
       component: () => import('../views/three/GeometryDemo.vue'),
     },
+    {
+      path: '/three/sprite',
+      name: 'sprite',
+      component: () => import('../views/three/SpriteDemo.vue'),
+    },
   ],
 });
 
