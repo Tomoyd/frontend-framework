@@ -69,6 +69,11 @@ const router = createRouter({
       name: 'group',
       component: () => import('../views/three/GroupLoader.vue'),
     },
+    {
+      path: '/three/animation',
+      name: 'animate',
+      component: () => import('../views/three/AnimationCamera.vue'),
+    },
   ],
 });
 

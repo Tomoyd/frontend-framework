@@ -196,5 +196,6 @@ export function useThree(id?: string) {
     stopLoopRender,
     renderEffectStore,
     mount,
+    camera: perspectiveCamera,
   };
 }
