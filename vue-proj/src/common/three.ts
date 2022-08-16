@@ -39,15 +39,19 @@ export function createCubeByGeometry(material: Material) {
 }
 const raycaster = new Raycaster();
 
+export const getNormalVector3 = (x = 0, y = 0) =>
+  new Vector3(
+    (x / window.innerWidth) * 2 - 1,
+    -(y / window.innerHeight) * 2 + 1,
+    0.1
+  );
+
 export function getSelectedCube<T extends Object3D>(
   event: MouseEvent,
   camera: Camera,
   objs: T[]
 ) {
-  const vector = new Vector2(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    -(event.clientY / window.innerHeight) * 2 + 1
-  );
+  const vector = getNormalVector3(event.clientX, event.clientY);
 
   raycaster.setFromCamera(vector, camera);
   const intersects = raycaster.intersectObjects<T>(objs);

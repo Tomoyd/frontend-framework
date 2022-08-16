@@ -83,8 +83,11 @@ export function useThree(id?: string) {
     0.1,
     500
   );
-  perspectiveCamera.position.set(0, -50, 50);
-  perspectiveCamera.lookAt(scene.position);
+
+  perspectiveCamera.up.set(0, 1, 0);
+  perspectiveCamera.updateMatrix();
+  perspectiveCamera.position.set(0, 0, 60);
+  perspectiveCamera.lookAt(new Vector3(0, 0, 1));
 
   const renderer = new WebGLRenderer({ antialias: true });
   renderer.render(scene, perspectiveCamera);
@@ -197,5 +200,6 @@ export function useThree(id?: string) {
     renderEffectStore,
     mount,
     camera: perspectiveCamera,
+    dom: renderer.domElement,
   };
 }

@@ -8,46 +8,31 @@ import { createCubeByGeometry } from '@/common/three';
 import { useThree } from '@/hooks/useThree';
 import { useThreeSelect } from '@/hooks/useThreeSelect';
 import {
+  AxesHelper,
+  BoxGeometry,
   Mesh,
   MeshNormalMaterial,
-  PlaneGeometry,
-  SphereGeometry,
   type Intersection,
 } from 'three';
 import { onMounted } from 'vue';
-import TWEEN from '@tweenjs/tween.js';
+
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
+import { tweenAnimate } from '@/common';
+
 const three = useThree();
 
-function getAnimate() {
-  let animateNumber = 0;
-  return function animate(time: number) {
-    animateNumber = requestAnimationFrame(animate);
-
-    TWEEN.update(time);
-    return () => {
-      cancelAnimationFrame(animateNumber);
-    };
-  };
-}
-
 function handleOne({ object: mesh }: Intersection<Mesh>) {
-  const stop = getAnimate()(0);
-  const { x } = mesh.position;
-  new TWEEN.Tween({ x })
-    .to({ x: x + 20 }, 1000)
-    .easing(TWEEN.Easing.Quadratic.Out)
-    .onUpdate(({ x }) => {
-      mesh.position.setX(x);
-      window.requestAnimationFrame(three.render);
-    })
-    .onComplete(() => {
-      stop();
-    })
-    .start();
+  const { y } = mesh.rotation;
+
+  tweenAnimate({ y }, { y: y + Math.PI }, ({ y }) => {
+    mesh.rotation.y = y;
+    console.log(y);
+    window.requestAnimationFrame(three.render);
+  });
 }
 
 function handleSelected(intersections: Intersection<Mesh>[]) {
-  console.log('intersections', intersections);
   if (!intersections.length) {
     return;
   }
@@ -58,16 +43,23 @@ function handleSelected(intersections: Intersection<Mesh>[]) {
 const { addIntersectObj } = useThreeSelect<Mesh>(three.camera, handleSelected);
 
 onMounted(() => {
-  const createCube = createCubeByGeometry(new MeshNormalMaterial());
-  const plane = createCube(new PlaneGeometry(20, 30));
-  addIntersectObj(plane);
-  three.add(plane);
+  const createCube = createCubeByGeometry(
+    new MeshNormalMaterial({ wireframe: false })
+  );
 
-  const sphere = createCube(new SphereGeometry(5, 10, 10));
-  sphere.position.setX(-30);
+  const sphere = createCube(new BoxGeometry(5, 10, 20));
+  sphere.position.setZ(-20);
   addIntersectObj(sphere);
   three.add(sphere);
-
+  three.add(new AxesHelper(30));
+  three.camera.up.set(0, 0, 1);
+  const orbit = new OrbitControls(three.camera, three.dom);
+  orbit.autoRotate = true;
   three.mount();
+
+  orbit.addEventListener('change', () => {
+    window.requestAnimationFrame(orbit.update);
+    window.requestAnimationFrame(three.render);
+  });
 });
 </script>
