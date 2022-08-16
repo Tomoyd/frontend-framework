@@ -20,8 +20,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { tweenAnimate } from '@/common';
 
-const three = useThree();
-
 function handleOne({ object: mesh }: Intersection<Mesh>) {
   const { y } = mesh.rotation;
 
@@ -36,13 +34,23 @@ function handleSelected(intersections: Intersection<Mesh>[]) {
   if (!intersections.length) {
     return;
   }
-
   intersections.forEach(handleOne);
 }
 
+function initOrbit() {
+  const orbit = new OrbitControls(three.camera, three.dom);
+  orbit.autoRotate = true;
+  orbit.addEventListener('change', () => {
+    window.requestAnimationFrame(orbit.update);
+    window.requestAnimationFrame(three.render);
+  });
+}
+
+const three = useThree();
 const { addIntersectObj } = useThreeSelect<Mesh>(three.camera, handleSelected);
 
 onMounted(() => {
+  //   initOrbit();
   const createCube = createCubeByGeometry(
     new MeshNormalMaterial({ wireframe: false })
   );
@@ -50,16 +58,9 @@ onMounted(() => {
   const sphere = createCube(new BoxGeometry(5, 10, 20));
   sphere.position.setZ(-20);
   addIntersectObj(sphere);
+
   three.add(sphere);
   three.add(new AxesHelper(30));
-  three.camera.up.set(0, 0, 1);
-  const orbit = new OrbitControls(three.camera, three.dom);
-  orbit.autoRotate = true;
   three.mount();
-
-  orbit.addEventListener('change', () => {
-    window.requestAnimationFrame(orbit.update);
-    window.requestAnimationFrame(three.render);
-  });
 });
 </script>
