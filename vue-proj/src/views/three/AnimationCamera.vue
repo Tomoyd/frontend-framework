@@ -6,7 +6,13 @@
 </template>
 <style scoped></style>
 <script lang="ts" setup>
-import { createCubeByGeometry } from '@/common/three';
+import {
+  createCubeByGeometry,
+  FirstPersonControls,
+  OrbitControls,
+  PointerLockControls,
+  TrackballControls,
+} from '@/common/three';
 
 import { useThree } from '@/hooks/useThree';
 import { useThreeSelect } from '@/hooks/useThreeSelect';
@@ -18,11 +24,8 @@ import {
   MeshNormalMaterial,
   type Intersection,
 } from 'three';
-import { effect, onMounted } from 'vue';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+import { onMounted } from 'vue';
+
 import { tweenAnimate } from '@/common';
 import SelectBasic from '@/components/SelectBasic.vue';
 import { useObjResManage } from '@/hooks/useObjResManage';
@@ -37,7 +40,6 @@ function handleOne({ object: mesh }: Intersection<Mesh>) {
     window.requestAnimationFrame(three.render);
   });
 }
-
 function handleSelected(intersections: Intersection<Mesh>[]) {
   if (!intersections.length) {
     return;
@@ -45,6 +47,40 @@ function handleSelected(intersections: Intersection<Mesh>[]) {
   intersections.forEach(handleOne);
 }
 
+function getFirstControls() {
+  let remove = () => {
+    return;
+  };
+  const firstPerson = () => {
+    const control = new FirstPersonControls(three.camera);
+
+    control.movementSpeed = 1;
+    control.lookSpeed = 0.1;
+    control.lookAt(0, 0, 0);
+    const clock = new Clock();
+    function update() {
+      control.update(clock.getDelta());
+    }
+    remove = three.renderEffectStore.addEffects(update);
+    three.loopRender();
+  };
+
+  return [firstPerson, remove];
+}
+function getTraceBall() {
+  let remove = () => {
+    return;
+  };
+  function traceBall() {
+    const controls = new TrackballControls(three.camera, three.dom);
+    function update() {
+      controls.update();
+    }
+    remove = three.renderEffectStore.addEffects(update);
+    three.loopRender();
+  }
+  return [traceBall, remove];
+}
 function initOrbit() {
   const orbit = new OrbitControls(three.camera, three.dom);
   orbit.autoRotate = true;
@@ -58,40 +94,8 @@ function initOrbit() {
     window.requestAnimationFrame(three.render);
   });
 }
-let remove: () => void;
-const firstPerson = () => {
-  if (remove) {
-    remove();
-  }
-  const control = new FirstPersonControls(three.camera);
-
-  control.movementSpeed = 1;
-  control.lookSpeed = 0.1;
-  control.lookAt(0, 0, 0);
-  const clock = new Clock();
-  function update() {
-    control.update(clock.getDelta());
-  }
-  remove = three.renderEffectStore.addEffects(update);
-  three.loopRender();
-};
-
-function traceBall() {
-  if (remove) {
-    remove();
-  }
-  const controls = new TrackballControls(three.camera, three.dom);
-  function update() {
-    controls.update();
-  }
-  remove = three.renderEffectStore.addEffects(update);
-  three.loopRender();
-}
-
 function pointerLock() {
   const controls = new PointerLockControls(three.camera, document.body);
-
-  // add event listener to show/hide a UI (e.g. the game's menu)
 
   controls.addEventListener('lock', function () {
     //
@@ -105,27 +109,29 @@ function pointerLock() {
   controls.lock();
 }
 
+const [first, removeFirst] = getFirstControls();
+const [traceBall, removeTraceBall] = getTraceBall();
 const three = useThree();
 const { addIntersectObj } = useThreeSelect<Mesh>(three.camera, handleSelected);
+
 function getCameraControls() {
   return {
     orbit: initOrbit,
-    first: firstPerson,
+    first,
     traceBall,
     pointerLock,
   };
 }
 const [ctrType, controls] = useObjResManage(
   getCameraControls(),
-  (fn, obj, key) => {
-    if (key === 'orbit') {
-      three.stopLoopRender();
-      remove?.();
-    }
+  (fn) => {
+    removeFirst();
+    removeTraceBall();
     fn();
   },
   'orbit'
 );
+
 onMounted(() => {
   initOrbit();
   const createCube = createCubeByGeometry(
