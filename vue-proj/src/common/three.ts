@@ -19,6 +19,12 @@ export * from 'three/examples/jsm/controls/OrbitControls';
 export * from 'three/examples/jsm/controls/FirstPersonControls';
 export * from 'three/examples/jsm/controls/TrackballControls';
 export * from 'three/examples/jsm/controls/PointerLockControls';
+
+export * from 'three/examples/jsm/loaders/GLTFLoader';
+// DRACOLoader
+
+export * from 'three/examples/jsm/loaders/DRACOLoader';
+// export * as Stats from 'three/examples/jsm/libs/stats';
 export function getMaterials() {
   return {
     basic: new MeshBasicMaterial({ color: 0xffff00 }),

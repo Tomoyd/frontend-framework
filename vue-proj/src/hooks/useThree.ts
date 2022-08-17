@@ -94,6 +94,7 @@ export function useThree(id?: string) {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(new THREE.Color(0x333333));
   renderer.shadowMap.enabled = true;
+  renderer.outputEncoding = THREE.sRGBEncoding;
 
   let renderHandle = 0;
 
