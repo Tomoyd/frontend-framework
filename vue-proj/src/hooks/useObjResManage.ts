@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 
 export const getObjResManageHooks = ({
   beforeEffect,
@@ -25,20 +25,17 @@ export const getObjResManageHooks = ({
   };
 };
 
-export const useObjResManage = <T, Keys extends keyof T>(
+export const useObjResManage = <T>(
   obj: T,
-  handle: (current: T[Keys], obj?: T, val?: Keys) => void,
-  init: Keys
+  handle: (current: T[keyof T], obj?: T, val?: keyof T) => void,
+  init: keyof T
 ) => {
-  const currentType = ref<Keys>(init);
+  const currentType = ref(init);
 
   watch(currentType, (newVal) => {
-    const key = newVal as Keys;
+    const key = newVal as keyof T;
     handle(obj[key], obj, key);
   });
 
-  return {
-    options: obj,
-    currentType,
-  };
+  return [currentType, obj] as [typeof currentType, T];
 };
