@@ -1,5 +1,7 @@
 import { onMounted } from 'vue';
 import * as THREE from 'three';
+import { createStats, OrbitControls } from '@/common/three';
+import type { Camera } from 'three';
 
 type Void = () => void;
 
@@ -73,6 +75,16 @@ function createLineCube() {
   const geometry = new THREE.BoxGeometry(10, 10, 10);
 
   return createMultiMaterialObject(geometry, materials);
+}
+
+function createOrbitControls(camera: Camera, dom: HTMLCanvasElement) {
+  const controls = new OrbitControls(camera, dom);
+
+  controls.target.set(0, 0.5, 0);
+  controls.update();
+  controls.enablePan = false;
+  controls.enableDamping = true;
+  return controls;
 }
 
 export function useThree(id?: string) {
@@ -176,17 +188,30 @@ export function useThree(id?: string) {
     });
   }
 
-  function addCustomGeometry() {
-    scene.add(customGeometry());
-    scene.add(createLineCube());
-  }
-
   function add(cube: THREE.Object3D) {
     scene.add(cube);
   }
 
+  function initOrbit() {
+    const controls = createOrbitControls(
+      perspectiveCamera,
+      renderer.domElement
+    );
+
+    renderEffectStore.addEffects(controls.update.bind(controls));
+  }
+
+  function initStats() {
+    const stats = createStats();
+    renderEffectStore.addEffects(stats.update.bind(stats));
+    document.getElementById('stats')?.appendChild(stats.dom);
+    return stats;
+  }
+
   function mount() {
     document.getElementById(id || 'three')?.appendChild(renderer.domElement);
+    initOrbit();
+    initStats();
     window.requestAnimationFrame(render);
   }
 
@@ -194,12 +219,12 @@ export function useThree(id?: string) {
     render,
     addSpotLight,
     addPlane,
-    addCustomGeometry,
     add,
     loopRender,
     stopLoopRender,
     renderEffectStore,
     mount,
+    initOrbit,
     camera: perspectiveCamera,
     dom: renderer.domElement,
   };

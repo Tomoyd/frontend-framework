@@ -132,7 +132,7 @@ function pointerLock() {
 // 核心动画类
 // AnimationClip;
 // AnimationMixer;
-// AnimationAction
+// AnimationAction;
 
 function loadHorse() {
   const loader = new GLTFLoader();

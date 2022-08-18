@@ -74,6 +74,11 @@ const router = createRouter({
       name: 'animate',
       component: () => import('../views/three/AnimationCamera.vue'),
     },
+    {
+      path: '/three/textures',
+      name: 'textures',
+      component: () => import('../views/three/TextureMaterial.vue'),
+    },
   ],
 });
 

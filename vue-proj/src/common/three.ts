@@ -12,6 +12,7 @@ import {
   MeshStandardMaterial,
   Object3D,
   Raycaster,
+  TextureLoader,
   Vector2,
   Vector3,
 } from 'three';
@@ -19,12 +20,15 @@ export * from 'three/examples/jsm/controls/OrbitControls';
 export * from 'three/examples/jsm/controls/FirstPersonControls';
 export * from 'three/examples/jsm/controls/TrackballControls';
 export * from 'three/examples/jsm/controls/PointerLockControls';
-
 export * from 'three/examples/jsm/loaders/GLTFLoader';
-// DRACOLoader
-
 export * from 'three/examples/jsm/loaders/DRACOLoader';
-// export * as Stats from 'three/examples/jsm/libs/stats';
+import Stats from 'three/examples/jsm/libs/stats.module';
+
+export function createStats() {
+  const stats = Stats();
+  return stats;
+}
+
 export function getMaterials() {
   return {
     basic: new MeshBasicMaterial({ color: 0xffff00 }),
@@ -65,4 +69,28 @@ export function getSelectedCube<T extends Object3D>(
   raycaster.setFromCamera(vector, camera);
   const intersects = raycaster.intersectObjects<T>(objs);
   return intersects;
+}
+
+export function getTextureLoader<T extends string>(baseUrl: string) {
+  const cacheTextureMaterial = new Map();
+  function loadTexture(name: T) {
+    let material: Material = cacheTextureMaterial.get(name);
+    if (material) {
+      return material;
+    }
+    const textureLoader = new TextureLoader();
+    return new Promise<Material | false>((resolve) => {
+      textureLoader.load(
+        `${baseUrl}${name}`,
+        (texture) => {
+          material = new MeshStandardMaterial({ map: texture });
+          cacheTextureMaterial.set(name, material);
+          resolve(material);
+        },
+        undefined,
+        () => resolve(false)
+      );
+    });
+  }
+  return loadTexture;
 }
