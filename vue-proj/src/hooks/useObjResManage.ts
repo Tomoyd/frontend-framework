@@ -10,7 +10,7 @@ export const getObjResManageHooks = ({
 } = {}) => {
   return <T extends object>(
     obj: T,
-    handle: (current: T[keyof T], obj?: T, val?: keyof T) => void,
+    handle: (current: T[keyof T], val?: keyof T, obj?: T) => void,
     init: keyof T
   ) => {
     const currentType = ref<keyof T>(init);
@@ -18,7 +18,7 @@ export const getObjResManageHooks = ({
     watch(currentType, (newVal) => {
       beforeEffect?.();
       const key = newVal as keyof T;
-      handle(obj[key], obj, key);
+      handle(obj[key], key, obj);
       afterEffect?.();
     });
 

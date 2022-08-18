@@ -7,7 +7,12 @@
   </VFixed>
 </template>
 <script lang="ts" setup>
-import { createCubeByGeometry, getTextureLoader } from '@/common/three';
+import {
+  createCubeByGeometry,
+  getTextureLoader,
+  createGroundPlane,
+  createSpotLight,
+} from '@/common/three';
 import VFixed from '@/components/ui/VFixed.vue';
 import { useObjResManage } from '@/hooks/useObjResManage';
 import { useThree } from '@/hooks/useThree';
@@ -24,9 +29,11 @@ import SelectBasic from '../../components/SelectBasic.vue';
 
 function getTextureType() {
   return {
-    floorWood: 'floor-wood.jpg',
-    brickWall: 'brick-wall.jpg',
-    metalRust: 'metal-rust.jpg',
+    texture: 'brick-wall.jpg',
+    dds: 'test-dxt1.dds',
+    bumpMap: 'stone.jpg',
+    normalMap: 'plaster.jpg',
+    displacementMap: 'w_c.jpg',
   };
 }
 
@@ -40,17 +47,34 @@ function getGeometries() {
 
 let box: Mesh;
 const three = useThree();
-const materialLoader = getTextureLoader('/three/textures/');
+const load = getTextureLoader('/three/textures/');
 
 const [textureType, textureOptions] = useObjResManage(
   getTextureType(),
-  async (current) => {
-    const material = await materialLoader(current);
+  async (current, key) => {
+    const names = [current];
+
+    const loadType = key === 'dds' ? 'dds' : 'texture';
+    let mapType: 'map' | 'normalMap' | 'bumpMap' | 'displacementMap' = 'map';
+    if (key === 'bumpMap') {
+      mapType = key;
+      names[1] = 'stone-bump.jpg';
+    }
+    if (key === 'normalMap') {
+      mapType = key;
+      names[1] = 'plaster-normal.jpg';
+    }
+    if (key === 'displacementMap') {
+      mapType = key;
+      names[1] = 'w_d.png';
+    }
+
+    const material = await load(names, loadType, mapType);
     if (material) {
       box.material = material;
     }
   },
-  'brickWall'
+  'texture'
 );
 
 const [geoType, geoOptions] = useObjResManage(
@@ -63,10 +87,14 @@ const [geoType, geoOptions] = useObjResManage(
 
 async function init() {
   box = createCubeByGeometry(
-    (await materialLoader(textureOptions.floorWood)) as Material
+    (await load([textureOptions.texture])) as Material
   )(geoOptions.box);
+  box.castShadow = true;
+
   three.add(box);
-  three.add(new AmbientLight(0xffffff));
+  three.add(new AmbientLight(0x444444));
+  three.add(createGroundPlane());
+  three.add(createSpotLight());
   three.mount();
   three.loopRender();
 }

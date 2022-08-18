@@ -4,17 +4,25 @@ import {
   Camera,
   DodecahedronGeometry,
   DoubleSide,
+  Loader,
   Material,
   Mesh,
   MeshBasicMaterial,
   MeshNormalMaterial,
+  MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
+  PlaneGeometry,
   Raycaster,
+  Scene,
+  SpotLight,
+  SpotLightHelper,
+  Texture,
   TextureLoader,
   Vector2,
   Vector3,
+  type MeshStandardMaterialParameters,
 } from 'three';
 export * from 'three/examples/jsm/controls/OrbitControls';
 export * from 'three/examples/jsm/controls/FirstPersonControls';
@@ -23,6 +31,9 @@ export * from 'three/examples/jsm/controls/PointerLockControls';
 export * from 'three/examples/jsm/loaders/GLTFLoader';
 export * from 'three/examples/jsm/loaders/DRACOLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
+import { DDSLoader } from 'three/examples/jsm/loaders/DDSLoader';
+import { PVRLoader } from 'three/examples/jsm/loaders/PVRLoader';
+export * from 'three/examples/jsm/loaders/DDSLoader';
 
 export function createStats() {
   const stats = Stats();
@@ -71,26 +82,85 @@ export function getSelectedCube<T extends Object3D>(
   return intersects;
 }
 
+export const LoadMap = {
+  texture: TextureLoader,
+  dds: DDSLoader,
+  pvr: PVRLoader,
+};
+async function load<T extends string>(
+  names: T[],
+  baseUrl: string,
+  loadType: keyof typeof LoadMap = 'texture'
+) {
+  const loader = new LoadMap[loadType]();
+
+  return await Promise.all(
+    names.map(
+      (filename) =>
+        new Promise<Texture | null>((resolve) => {
+          loader.load(
+            `${baseUrl}${filename}`,
+            (texture) => {
+              resolve(texture);
+            },
+            undefined,
+            () => resolve(null)
+          );
+        })
+    )
+  );
+}
 export function getTextureLoader<T extends string>(baseUrl: string) {
   const cacheTextureMaterial = new Map();
-  function loadTexture(name: T) {
-    let material: Material = cacheTextureMaterial.get(name);
+
+  async function loadTextureNormal(
+    filenames: T[],
+    loadType: keyof typeof LoadMap = 'texture',
+    mapType: 'map' | 'bumpMap' | 'normalMap' | 'displacementMap' = 'map'
+  ) {
+    let material: Material = cacheTextureMaterial.get(filenames.join('-'));
     if (material) {
       return material;
     }
-    const textureLoader = new TextureLoader();
-    return new Promise<Material | false>((resolve) => {
-      textureLoader.load(
-        `${baseUrl}${name}`,
-        (texture) => {
-          material = new MeshStandardMaterial({ map: texture });
-          cacheTextureMaterial.set(name, material);
-          resolve(material);
-        },
-        undefined,
-        () => resolve(false)
-      );
-    });
+    console.log('filenames', filenames);
+    const [texture1, texture2] = await load(filenames, baseUrl, loadType);
+
+    const parameters: MeshStandardMaterialParameters = {
+      map: texture1,
+      metalness: 0.02,
+      roughness: 0.07,
+    };
+    if (mapType !== 'map') {
+      parameters[mapType] = texture2;
+    }
+
+    material = new MeshStandardMaterial(parameters);
+
+    cacheTextureMaterial.set(filenames.join('-'), material);
+    return material;
   }
-  return loadTexture;
+
+  return loadTextureNormal;
 }
+
+export const createGroundPlane = () => {
+  const plane = createCubeByGeometry(
+    new MeshPhongMaterial({ color: 0xffffff })
+  )(new PlaneGeometry(100, 100));
+  plane.receiveShadow = true;
+  plane.position.setZ(-10);
+  return plane;
+};
+
+export const createSpotLight = () => {
+  const spotLight = new SpotLight(0xffffff);
+  spotLight.position.set(-10, 30, 40);
+  spotLight.shadow.mapSize.width = 2048;
+  spotLight.shadow.mapSize.height = 2048;
+  spotLight.shadow.camera.fov = 15;
+  spotLight.castShadow = true;
+  spotLight.decay = 2;
+  spotLight.penumbra = 0.05;
+  spotLight.name = 'spot light';
+  return spotLight;
+};
