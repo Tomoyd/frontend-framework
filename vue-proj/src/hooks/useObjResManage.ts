@@ -10,7 +10,7 @@ export const getObjResManageHooks = ({
 } = {}) => {
   return <T extends object>(
     obj: T,
-    handle: (current: T[keyof T], val?: keyof T, obj?: T) => void,
+    handle: (current: T[keyof T], val: keyof T, obj?: T) => void,
     init: keyof T
   ) => {
     const currentType = ref<keyof T>(init);

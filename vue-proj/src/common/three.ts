@@ -4,6 +4,7 @@ import {
   Camera,
   DodecahedronGeometry,
   DoubleSide,
+  Group,
   Loader,
   Material,
   Mesh,
@@ -32,8 +33,10 @@ export * from 'three/examples/jsm/loaders/GLTFLoader';
 export * from 'three/examples/jsm/loaders/DRACOLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { DDSLoader } from 'three/examples/jsm/loaders/DDSLoader';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { PVRLoader } from 'three/examples/jsm/loaders/PVRLoader';
 export * from 'three/examples/jsm/loaders/DDSLoader';
+export * from 'three/examples/jsm/loaders/OBJLoader';
 
 export function createStats() {
   const stats = Stats();
@@ -56,8 +59,8 @@ export function getGeometries() {
   };
 }
 
-export function createCubeByGeometry(material: Material) {
-  return function (geometry: BufferGeometry) {
+export function createCubeByGeometry<T extends Material>(material: T) {
+  return function <G extends BufferGeometry>(geometry: G) {
     return new Mesh(geometry, material);
   };
 }
@@ -87,14 +90,22 @@ export const LoadMap = {
   dds: DDSLoader,
   pvr: PVRLoader,
 };
-async function load<T extends string>(
+
+const cache = new Map<string, (Texture | null)[]>();
+export async function loadTexture<T extends string>(
   names: T[],
   baseUrl: string,
   loadType: keyof typeof LoadMap = 'texture'
 ) {
   const loader = new LoadMap[loadType]();
 
-  return await Promise.all(
+  const key = names.join('-');
+  const cacheTextures = cache.get(key);
+  if (cacheTextures) {
+    return cacheTextures;
+  }
+
+  const textures = await Promise.all(
     names.map(
       (filename) =>
         new Promise<Texture | null>((resolve) => {
@@ -109,6 +120,8 @@ async function load<T extends string>(
         })
     )
   );
+  cache.set(key, textures);
+  return textures;
 }
 export function getTextureLoader<T extends string>(baseUrl: string) {
   const cacheTextureMaterial = new Map();
@@ -118,12 +131,18 @@ export function getTextureLoader<T extends string>(baseUrl: string) {
     loadType: keyof typeof LoadMap = 'texture',
     mapType: 'map' | 'bumpMap' | 'normalMap' | 'displacementMap' = 'map'
   ) {
-    let material: Material = cacheTextureMaterial.get(filenames.join('-'));
+    let material: MeshStandardMaterial = cacheTextureMaterial.get(
+      filenames.join('-')
+    );
     if (material) {
       return material;
     }
     console.log('filenames', filenames);
-    const [texture1, texture2] = await load(filenames, baseUrl, loadType);
+    const [texture1, texture2] = await loadTexture(
+      filenames,
+      baseUrl,
+      loadType
+    );
 
     const parameters: MeshStandardMaterialParameters = {
       map: texture1,
@@ -145,10 +164,11 @@ export function getTextureLoader<T extends string>(baseUrl: string) {
 
 export const createGroundPlane = () => {
   const plane = createCubeByGeometry(
-    new MeshPhongMaterial({ color: 0xffffff })
+    new MeshPhongMaterial({ color: 0xffffff, side: DoubleSide })
   )(new PlaneGeometry(100, 100));
+  plane.rotation.x = -Math.PI / 2;
   plane.receiveShadow = true;
-  plane.position.setZ(-10);
+  plane.position.set(0, -5, 0);
   return plane;
 };
 
@@ -163,4 +183,19 @@ export const createSpotLight = () => {
   spotLight.penumbra = 0.05;
   spotLight.name = 'spot light';
   return spotLight;
+};
+
+export const loadObj = async (url: string) => {
+  const objLoader = new OBJLoader();
+
+  return new Promise<Group | null>((resolve) => {
+    objLoader.load(
+      url,
+      (obj) => {
+        resolve(obj);
+      },
+      undefined,
+      () => resolve(null)
+    );
+  });
 };

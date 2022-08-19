@@ -2,8 +2,10 @@
   <div id="three"></div>
   <div id="stats"></div>
   <VFixed :left="90" :top="5">
-    <SelectBasic :options="textureOptions" v-model="textureType" />
-    <SelectBasic :options="geoOptions" v-model="geoType" />
+    texture:
+    <SelectBasic :options="textureOptions" v-model="textureType" /> geometry:
+    <SelectBasic :options="geoOptions" v-model="geoType" /> map:
+    <SelectBasic :options="mapOptions" v-model="mapType" />
   </VFixed>
 </template>
 <script lang="ts" setup>
@@ -12,6 +14,8 @@ import {
   getTextureLoader,
   createGroundPlane,
   createSpotLight,
+  loadTexture,
+  loadObj,
 } from '@/common/three';
 import VFixed from '@/components/ui/VFixed.vue';
 import { useObjResManage } from '@/hooks/useObjResManage';
@@ -19,10 +23,16 @@ import { useThree } from '@/hooks/useThree';
 import {
   AmbientLight,
   BoxGeometry,
+  BufferGeometry,
+  BufferGeometryLoader,
+  Group,
   IcosahedronGeometry,
   Material,
   Mesh,
+  MeshStandardMaterial,
+  ObjectLoader,
   SphereGeometry,
+  Texture,
 } from 'three';
 import { onMounted } from 'vue';
 import SelectBasic from '../../components/SelectBasic.vue';
@@ -31,9 +41,20 @@ function getTextureType() {
   return {
     texture: 'brick-wall.jpg',
     dds: 'test-dxt1.dds',
-    bumpMap: 'stone.jpg',
-    normalMap: 'plaster.jpg',
-    displacementMap: 'w_c.jpg',
+    stone: 'stone.jpg',
+    plaster: 'plaster.jpg',
+    wc: 'w_c.jpg',
+  };
+}
+
+function getUVMap() {
+  return {
+    bumpMap: 'stone-bump.jpg',
+    normalMap: 'plaster-normal.jpg',
+    displacementMap: 'w_d.png',
+    lightMap: 'lightmap.png',
+    aoMap: 'ambient.png',
+    roughnessMap: 'roughness-map.jpg',
   };
 }
 
@@ -45,34 +66,31 @@ function getGeometries() {
   };
 }
 
-let box: Mesh;
+async function addObj() {
+  const group = await loadObj('/three/models/baymax/Bigmax_White_OBJ.obj');
+  group?.scale.set(0.1, 0.1, 0.1);
+  group?.position.set(0, 0, 30);
+  const [texture] = await loadTexture(['ambient.png'], '/three/models/baymax/');
+  (group?.children as Mesh<BufferGeometry, MeshStandardMaterial>[])
+    .filter((mesh) => mesh.name === 'Head')
+    .forEach((mesh) => {
+      mesh.material.aoMap = texture;
+    });
+
+  group && three.add(group);
+}
+
+let box: Mesh<BufferGeometry, MeshStandardMaterial>;
 const three = useThree();
 const load = getTextureLoader('/three/textures/');
 
 const [textureType, textureOptions] = useObjResManage(
   getTextureType(),
   async (current, key) => {
-    const names = [current];
-
-    const loadType = key === 'dds' ? 'dds' : 'texture';
-    let mapType: 'map' | 'normalMap' | 'bumpMap' | 'displacementMap' = 'map';
-    if (key === 'bumpMap') {
-      mapType = key;
-      names[1] = 'stone-bump.jpg';
-    }
-    if (key === 'normalMap') {
-      mapType = key;
-      names[1] = 'plaster-normal.jpg';
-    }
-    if (key === 'displacementMap') {
-      mapType = key;
-      names[1] = 'w_d.png';
-    }
-
-    const material = await load(names, loadType, mapType);
-    if (material) {
-      box.material = material;
-    }
+    box.material = await load(
+      [current],
+      key?.includes('dds') ? 'dds' : 'texture'
+    );
   },
   'texture'
 );
@@ -85,13 +103,27 @@ const [geoType, geoOptions] = useObjResManage(
   'box'
 );
 
+const [mapType, mapOptions] = useObjResManage(
+  getUVMap(),
+  async (current, key) => {
+    (Object.keys(mapOptions) as typeof key[]).forEach((k) => {
+      box.material[k] = null;
+    });
+    box.material[key] = (await loadTexture([current], '/three/textures/'))[0];
+    if (key === 'roughnessMap') {
+      box.material.metalnessMap = box.material[key];
+    }
+    box.material.needsUpdate = true;
+  },
+  'aoMap'
+);
 async function init() {
-  box = createCubeByGeometry(
-    (await load([textureOptions.texture])) as Material
-  )(geoOptions.box);
+  box = createCubeByGeometry(await load([textureOptions.texture]))(
+    geoOptions.box
+  );
   box.castShadow = true;
-
   three.add(box);
+  addObj();
   three.add(new AmbientLight(0x444444));
   three.add(createGroundPlane());
   three.add(createSpotLight());
