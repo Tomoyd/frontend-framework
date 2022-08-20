@@ -1,10 +1,17 @@
+import type { CubeMapKey } from '@/types';
 import {
   AmbientLight,
   BufferGeometry,
   Camera,
+  CubeCamera,
+  CubeTexture,
+  CubeTextureLoader,
   DodecahedronGeometry,
   DoubleSide,
   Group,
+  HalfFloatType,
+  IcosahedronGeometry,
+  LinearMipmapLinearFilter,
   Loader,
   Material,
   Mesh,
@@ -23,6 +30,7 @@ import {
   TextureLoader,
   Vector2,
   Vector3,
+  WebGLCubeRenderTarget,
   type MeshStandardMaterialParameters,
 } from 'three';
 export * from 'three/examples/jsm/controls/OrbitControls';
@@ -137,7 +145,6 @@ export function getTextureLoader<T extends string>(baseUrl: string) {
     if (material) {
       return material;
     }
-    console.log('filenames', filenames);
     const [texture1, texture2] = await loadTexture(
       filenames,
       baseUrl,
@@ -145,9 +152,11 @@ export function getTextureLoader<T extends string>(baseUrl: string) {
     );
 
     const parameters: MeshStandardMaterialParameters = {
+      // envMap: createCubeTexture('car'),
       map: texture1,
-      metalness: 0.02,
-      roughness: 0.07,
+      color: 0xffffff,
+      roughness: 0.01,
+      metalness: 0,
     };
     if (mapType !== 'map') {
       parameters[mapType] = texture2;
@@ -198,4 +207,51 @@ export const loadObj = async (url: string) => {
       () => resolve(null)
     );
   });
+};
+
+export const getCubeTextureLoader = () => {
+  const cubeLoader = new CubeTextureLoader();
+  const directions = [
+    'right.png',
+    'left.png',
+    'top.png',
+    'bottom.png',
+    'front.png',
+    'back.png',
+  ];
+  const cache = new Map<CubeMapKey, CubeTexture>();
+  return function load(cubeType: CubeMapKey) {
+    let cubeTexture = cache.get(cubeType);
+
+    if (cubeTexture) {
+      return cubeTexture;
+    }
+
+    cubeTexture = cubeLoader
+      .setPath(`/three/textures/cubeMap/${cubeType}/`)
+      .load(directions);
+
+    cache.set(cubeType, cubeTexture);
+    return cubeTexture;
+  };
+};
+
+export const createCubeTexture = getCubeTextureLoader();
+
+export const createCubeCamera = () => {
+  const cubeRenderTarget = new WebGLCubeRenderTarget(256);
+  cubeRenderTarget.texture.type = HalfFloatType;
+  const cubeCamera = new CubeCamera(10, 100, cubeRenderTarget);
+  const material = new MeshStandardMaterial({
+    envMap: cubeRenderTarget.texture,
+    roughness: 0.05,
+    metalness: 1,
+  });
+
+  const cube = new Mesh(new IcosahedronGeometry(15, 8), material);
+
+  return {
+    cube,
+    cubeCamera,
+  };
 };

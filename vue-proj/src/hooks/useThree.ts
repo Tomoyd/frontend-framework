@@ -1,7 +1,7 @@
 import { onMounted } from 'vue';
 import * as THREE from 'three';
 import { createStats, OrbitControls } from '@/common/three';
-import type { Camera } from 'three';
+import type { Camera, Color, Texture } from 'three';
 
 type Void = () => void;
 
@@ -134,6 +134,14 @@ export function useThree(id?: string) {
 
   const renderEffectStore = createEffects();
 
+  function setBackground(bg: Color | Texture) {
+    scene.background = bg;
+  }
+
+  function getBackground() {
+    return scene.background;
+  }
+
   function addSpotLight() {
     const spotLight = new SpotLight(0xffffff, 1.2, 100, 60);
     spotLight.position.set(10, 30, 28);
@@ -215,17 +223,30 @@ export function useThree(id?: string) {
     window.requestAnimationFrame(render);
   }
 
+  function getRenderer() {
+    return renderer;
+  }
+
+  function getScene() {
+    return scene;
+  }
+
   return {
     render,
+    setBackground,
+    getBackground,
     addSpotLight,
     addPlane,
     add,
+    getRenderer,
+    getScene,
     loopRender,
     stopLoopRender,
     renderEffectStore,
     mount,
     initOrbit,
     camera: perspectiveCamera,
+
     dom: renderer.domElement,
   };
 }
