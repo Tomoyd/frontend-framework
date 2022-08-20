@@ -26,6 +26,7 @@ import {
   Scene,
   SpotLight,
   SpotLightHelper,
+  sRGBEncoding,
   Texture,
   TextureLoader,
   Vector2,
@@ -230,7 +231,7 @@ export const getCubeTextureLoader = () => {
     cubeTexture = cubeLoader
       .setPath(`/three/textures/cubeMap/${cubeType}/`)
       .load(directions);
-
+    cubeTexture.encoding = sRGBEncoding;
     cache.set(cubeType, cubeTexture);
     return cubeTexture;
   };

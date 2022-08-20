@@ -25,6 +25,7 @@ import { useThree } from '@/hooks/useThree';
 import {
   AmbientLight,
   BoxGeometry,
+  BufferAttribute,
   BufferGeometry,
   BufferGeometryLoader,
   CubeCamera,
@@ -35,6 +36,7 @@ import {
   Mesh,
   MeshPhongMaterial,
   MeshStandardMaterial,
+  PMREMGenerator,
   SphereGeometry,
   Texture,
   Vector2,
@@ -109,30 +111,41 @@ const mapFn = {
       ['lava.png', 'lava-normals.png', 'lava-smoothness.png'],
       '/three/textures/emissive/'
     );
-
     box.material.emissiveMap = emissiveMap;
     box.material.normalMap = normalMap;
     box.material.metalnessMap = metalnessMap;
     box.material.metalness = 1;
-    box.material.roughness = 0.4;
+    box.material.roughness = 0.05;
   },
   async roughnessMap() {
-    box.material.metalness = 1;
     const [map] = await loadTexture(['roughness-map.jpg'], '/three/textures/');
     box.material.metalnessMap = map;
-    box.material.roughnessMap = map;
-    box.material.roughness = 0.4;
-    window.requestAnimationFrame(() => {
-      box.material.envMap = createCubeTexture('car');
-    });
+    // box.material.roughnessMap = map;
+
+    box.material.metalness = 1;
+    box.material.roughness = 0.05;
+    // 物理机不好时改变为MeshPhongMaterial
+    box.material.envMap = createCubeTexture('car');
   },
-  async aoMap() {
-    const [map, aoMap] = await loadTexture(
-      ['stone.jpg', 'stone-map.jpg'],
+  async bumpMap() {
+    const [map, bumpMap] = await loadTexture(
+      ['stone.jpg', 'stone-map.png'],
       '/three/textures/'
     );
     box.material.map = map;
-    box.material.aoMap = aoMap;
+    box.material.bumpMap = bumpMap;
+  },
+  async normalMap() {
+    const [map, normalMap] = await loadTexture(
+      ['plaster.jpg', 'plaster-normal.jpg'],
+      '/three/textures/'
+    );
+    box.material.map = map;
+    box.material.aoMap = normalMap;
+  },
+  async aoMap() {
+    const [aomap] = await loadTexture(['ambient.png'], '/three/textures/');
+    box.material.aoMap = aomap;
   },
   async lightMap() {
     const [lightMap] = await loadTexture(['lightmap.png'], '/three/textures/');
@@ -160,9 +173,10 @@ function addCubeCamera() {
   cube.position.set(-30, 20, 0);
   cubeCamera.position.copy(cube.position);
   three.add(cube);
-
+  const renderer = three.getRenderer();
+  const scene = three.getScene();
   three.renderEffectStore.addEffects(() => {
-    cubeCamera.update(three.getRenderer(), three.getScene());
+    cubeCamera.update(renderer, scene);
   });
 }
 let box: Mesh<BufferGeometry, MeshStandardMaterial>;
@@ -213,7 +227,11 @@ async function init() {
   );
   box.castShadow = true;
   box.position.set(0, 0, 20);
+  const uvs = box.geometry.getAttribute('uv') as BufferAttribute;
+  // set进行更改
+  uvs.set([0.5, 0.5, 0.5], 0);
   three.add(box);
+  console.log('box.geometry.', box.geometry.getAttribute('uv'));
   addObj();
   addCubeCamera();
   three.add(new AmbientLight(0x444444));
