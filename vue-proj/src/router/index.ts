@@ -79,6 +79,11 @@ const router = createRouter({
       name: 'textures',
       component: () => import('../views/three/TextureMaterial.vue'),
     },
+    {
+      path: '/three/shader',
+      name: 'shader',
+      component: () => import('../views/three/ComposerShader.vue'),
+    },
   ],
 });
 
