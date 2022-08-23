@@ -53,6 +53,7 @@ export * from 'three/examples/jsm/postprocessing/ShaderPass';
 export * from 'three/examples/jsm/postprocessing/FilmPass';
 export * from 'three/examples/jsm/postprocessing/DotScreenPass';
 export * from 'three/examples/jsm/postprocessing/BloomPass';
+export * from 'three/examples/jsm/postprocessing/TexturePass';
 export * from 'three/examples/jsm/shaders/CopyShader';
 export function createStats() {
   const stats = Stats();

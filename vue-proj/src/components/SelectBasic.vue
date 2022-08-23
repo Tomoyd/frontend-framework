@@ -1,5 +1,5 @@
 <template>
-  <select v-model="option">
+  <select v-model="option" placeholder="请选择">
     <option v-for="(_, key) in options" :name="key" :key="key" :value="key">
       {{ key }}
     </option>
