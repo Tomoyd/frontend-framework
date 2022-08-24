@@ -1,6 +1,12 @@
 import type { Void } from '@/types';
 import { ref, watch } from 'vue';
 
+export type ResManageHandler<T> = (
+  current: T[keyof T],
+  val: keyof T,
+  obj?: T
+) => void;
+
 export const getObjResManageHooks = ({
   beforeEffect,
   afterEffect,
@@ -10,7 +16,7 @@ export const getObjResManageHooks = ({
 } = {}) => {
   return <T extends object>(
     obj: T,
-    handle: (current: T[keyof T], val: keyof T, obj?: T) => void,
+    handle: ResManageHandler<T>,
     init: keyof T
   ) => {
     const currentType = ref<keyof T>(init);

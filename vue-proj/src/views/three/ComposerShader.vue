@@ -1,6 +1,9 @@
 <template>
   <div id="three"></div>
   <div id="stats"></div>
+  <VFixed :left="80">
+    <SelectBasic :options="composerOptions" v-model="currentComposer" />
+  </VFixed>
 </template>
 <style></style>
 <script lang="ts" setup>
@@ -16,13 +19,18 @@ import {
   ShaderPass,
   TexturePass,
 } from '@/common/three';
+import VFixed from '@/components/ui/VFixed.vue';
+import {
+  useObjResManage,
+  type ResManageHandler,
+} from '@/hooks/useObjResManage';
 
 import { useThree } from '@/hooks/useThree';
-import type { Void } from '@/types';
 
 import { AmbientLight, MeshPhongMaterial, SphereGeometry } from 'three';
 
 import { onMounted } from 'vue';
+import SelectBasic from '../../components/SelectBasic.vue';
 
 function passFns() {
   const passFns = {
@@ -49,7 +57,7 @@ function passFns() {
   return passFns;
 }
 
-async function addEarth() {
+async function createEarth() {
   const [map] = await loadTexture(['Earth.png'], '/three/textures/earth/');
   const earth = createCubeByGeometry(
     new MeshPhongMaterial({
@@ -58,28 +66,10 @@ async function addEarth() {
       emissive: 0x000000, // 自发光的颜色
     })
   )(new SphereGeometry(10));
-  three.add(earth);
-  effectComposer.addEffects(() => {
-    earth.rotation.y += 0.01;
-  });
+  return earth;
 }
 
-function createEffects<T extends Void>() {
-  const renderEffects: T[] = [];
-  function addEffects(fn: T) {
-    renderEffects.push(fn);
-  }
-  function removeEffects(fn: T) {
-    renderEffects.splice(renderEffects.indexOf(fn), -1);
-  }
-  return {
-    renderEffects,
-    addEffects,
-    removeEffects,
-  };
-}
-
-function initComposer() {
+async function simpleComposer() {
   const renderer = three.getRenderer();
   const composer = new EffectComposer(renderer);
   const renderPass = new RenderPass(three.getScene(), three.camera);
@@ -88,8 +78,8 @@ function initComposer() {
   composer.addPass(renderPass);
   composer.addPass(shaderPass());
 
-  const effectsManage = createEffects();
-  const renderEffects = effectsManage.renderEffects;
+  const effectsManage = three.renderEffectStore;
+  const renderEffects = effectsManage.getEffects();
 
   const renderedScene = new TexturePass(composer.renderTarget2.texture);
 
@@ -111,6 +101,13 @@ function initComposer() {
   const { innerHeight, innerWidth } = window;
   const halfWidth = innerWidth / 2;
   const halfHeight = innerHeight / 2;
+
+  const earth = await createEarth();
+  three.add(earth);
+  effectsManage.addEffects(() => {
+    earth.rotation.y += 0.02;
+  });
+
   function composerRender(times: number) {
     renderer.clear();
     renderEffects.forEach((f) => f());
@@ -125,13 +122,12 @@ function initComposer() {
     bloomComposer.render(times);
 
     renderer.setViewport(halfWidth, halfHeight, halfWidth, halfHeight);
-
     dotScreenComposer.render(times);
     window.requestAnimationFrame(composerRender);
   }
 
   function renderToScreen(isRender = true) {
-    effectComposer.composer.renderToScreen = isRender;
+    composer.renderToScreen = isRender;
   }
 
   return {
@@ -141,14 +137,36 @@ function initComposer() {
     composerRender,
   };
 }
+const composerRes = {
+  simpleComposer,
+};
 
+type ComposerRes = typeof composerRes;
 const three = useThree();
-const effectComposer = initComposer();
+
+const handler: ResManageHandler<ComposerRes> = (() => {
+  const cache = new Map<keyof ComposerRes, (times: number) => void>();
+  return async (init, key) => {
+    let composerRender = cache.get(key);
+    if (composerRender) {
+      composerRender(0);
+      return;
+    }
+
+    composerRender = (await init()).composerRender;
+    composerRender(0);
+    cache.set(key, composerRender);
+  };
+})();
+
+const [currentComposer, composerOptions] = useObjResManage(
+  composerRes,
+  handler,
+  'simpleComposer'
+);
 
 onMounted(() => {
-  addEarth();
-
-  effectComposer.composerRender(0);
+  handler(composerRes.simpleComposer, 'simpleComposer');
   three.mount();
   three.add(new AmbientLight(0xffffff, 1));
 });

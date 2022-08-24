@@ -246,7 +246,6 @@ export function useThree(id?: string) {
     mount,
     initOrbit,
     camera: perspectiveCamera,
-
     dom: renderer.domElement,
   };
 }
