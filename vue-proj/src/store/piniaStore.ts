@@ -1,4 +1,5 @@
 import { createPinia, defineStore } from 'pinia';
+import { ref } from 'vue';
 export const pinia = createPinia();
 export const useStore = defineStore('main', {
   state: () => {
@@ -26,4 +27,12 @@ export const useStore = defineStore('main', {
       this.counter += 1;
     },
   },
+});
+
+// 推荐写法
+
+export const useSetupStore = defineStore('setup', () => {
+  const state = ref({ name: '1' });
+
+  return { other: state };
 });

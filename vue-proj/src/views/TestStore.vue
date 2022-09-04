@@ -1,5 +1,5 @@
 <script lang="ts">
-import { useStore } from '@/store/piniaStore';
+import { useSetupStore, useStore } from '@/store/piniaStore';
 import { mapActions, mapState } from 'pinia';
 import { onMounted } from 'vue';
 export default {
@@ -13,6 +13,7 @@ export default {
 </script>
 <script setup lang="ts">
 const store = useStore();
+const setup = useSetupStore();
 
 store.$subscribe((mutations, state) => {
   console.log('mutations', mutations);
@@ -43,6 +44,16 @@ store.$onAction(({ name, store, args, after, onError }) => {
 
   <div>{{ counter }}</div>
   <button @click="increment">add</button>
+  <div>{{ setup.other.name }}</div>
+  <button
+    @click="
+      () => {
+        setup.other.name = 'change';
+      }
+    "
+  >
+    change Name
+  </button>
   <div>
     {{
       ` 2x:${store.doubleCounter}
