@@ -75,8 +75,8 @@ const router = createRouter({
       component: () => import('../views/three/AnimationCamera.vue'),
     },
     {
-      path: '/',
-      name: 'animate',
+      path: '/three',
+      name: 'camera',
       component: () => import('../views/three/CameraControl.vue'),
     },
     {
