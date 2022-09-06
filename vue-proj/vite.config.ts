@@ -13,6 +13,8 @@ export default defineConfig({
     },
   },
   build: {
-    target: ['chrome58'],
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   },
 });
