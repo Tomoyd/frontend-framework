@@ -1,6 +1,7 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*","../node_modules/@types/three/examples/jsm/**/*"],
+  "allowJs":true,
+  "include": ["env.d.ts", "src/**/*","../node_modules/@types/three/examples/jsm/**/*.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

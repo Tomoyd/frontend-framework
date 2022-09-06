@@ -23,7 +23,7 @@ const option = computed({
   get() {
     return props.modelValue;
   },
-  set(val) {
+  set(val: string) {
     console.log('val', val);
     return emit('update:modelValue', val);
   },

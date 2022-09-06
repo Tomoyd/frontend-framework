@@ -2,6 +2,7 @@ import { onMounted } from 'vue';
 import * as THREE from 'three';
 import { createStats, OrbitControls } from '@/common/three';
 import type { Camera, Color, Texture } from 'three';
+import { debounce } from '@/common';
 
 type Void = () => void;
 
@@ -199,6 +200,13 @@ export function useThree(id?: string) {
   function add(cube: THREE.Object3D) {
     scene.add(cube);
   }
+  function resize() {
+    const { innerHeight, innerWidth } = window;
+    perspectiveCamera.aspect = innerWidth / innerHeight;
+    renderer.setSize(innerWidth, innerHeight);
+    perspectiveCamera.updateProjectionMatrix();
+    render();
+  }
 
   function initOrbit() {
     const controls = createOrbitControls(
@@ -242,6 +250,7 @@ export function useThree(id?: string) {
     add,
     getRenderer,
     getScene,
+    resize: debounce(resize),
     loopRender,
     stopLoopRender,
     renderEffectStore,

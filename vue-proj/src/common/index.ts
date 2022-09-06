@@ -31,7 +31,8 @@ export function tweenAnimate<T extends object>(
   form: T,
   to: T,
   update: (p: T) => void,
-  times = 1000
+  times = 1000,
+  complete?: () => void
 ) {
   const stop = getAnimate()(0);
   const tween = new TWEEN.Tween(form);
@@ -41,7 +42,16 @@ export function tweenAnimate<T extends object>(
     .onUpdate(update)
     .onComplete(() => {
       stop();
+      complete?.();
     })
     .start();
   return tween;
+}
+
+export function debounce(fn: () => void, delay = 50) {
+  let timer: number;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(), delay);
+  };
 }

@@ -13,6 +13,6 @@ import { useThree } from '@/hooks/useThree';
 import { onMounted } from 'vue';
 const three = useThree('three');
 onMounted(() => {
-  three.addCustomGeometry();
+  // three.addCustomGeometry();
 });
 </script>

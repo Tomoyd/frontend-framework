@@ -5,7 +5,7 @@
 import { onMounted } from 'vue';
 import * as THREE from 'three';
 class TextGeometry extends THREE.ExtrudeGeometry {
-  constructor(text: string, parameters) {
+  constructor(text: string, parameters: { [key: string]: any }) {
     const font = parameters.font;
 
     if (font === undefined) {

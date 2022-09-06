@@ -1,0 +1,38 @@
+name: THREE-CI
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    env:
+      MY_SECRET: ${{secrets.TOKEN}}
+      PUBLISH_DIR: vue-project/dist
+    environment:
+      name: production
+      url: https://tomoyd.github.io/three/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - name: Install package
+        run: |
+          cd vue-proj
+          npm install  
+          npm run build
+      - name: Deploy
+        run: |
+          cd $PUBLISH_DIR
+          git init
+          git remote add origin https://$MY_SECRET@github.com/Tomoyd/three.git
+          git config user.name 'Tomoyd'
+          git config user.email '${{secrets.USER_EMAIL}}'
+          git checkout -b gh-pages
+          git add -A
+          git commit -m 'deploy'
+          git push origin gh-pages -f
+          echo 🤘 deploy gh-pages complete.

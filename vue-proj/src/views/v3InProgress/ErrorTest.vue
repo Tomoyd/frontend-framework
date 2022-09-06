@@ -1,3 +1,1 @@
-<script></script>
-
-<template>{{ '1233'.toFixed() }}</template>
+<template>{{ '1233'.fixed() }}</template>
