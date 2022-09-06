@@ -30,6 +30,10 @@ export function useThreeSelect<T extends Object3D>(
     selectedObjs.value = getSelectedCube(event, camera, intersects);
   });
 
+  useWindowListener(window, 'touchstart', (event) => {
+    selectedObjs.value = getSelectedCube(event, camera, intersects);
+  });
+
   return {
     removeIntersectObj,
     addIntersectObj,

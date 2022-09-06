@@ -91,11 +91,13 @@ export const getNormalVector3 = (x = 0, y = 0) =>
   );
 
 export function getSelectedCube<T extends Object3D>(
-  event: MouseEvent,
+  event: MouseEvent | TouchEvent,
   camera: Camera,
   objs: T[]
 ) {
-  const vector = getNormalVector3(event.clientX, event.clientY);
+  const { clientX, clientY } =
+    event instanceof MouseEvent ? event : event.touches[0];
+  const vector = getNormalVector3(clientX, clientY);
 
   raycaster.setFromCamera(vector, camera);
   const intersects = raycaster.intersectObjects<T>(objs);
