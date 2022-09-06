@@ -26,7 +26,7 @@ export function useThreeSelect<T extends Object3D>(
     intersects = deleteItems(intersects, Array.isArray(obj) ? obj : [obj]);
   }
 
-  useWindowListener(window, 'mousedown', (event) => {
+  useWindowListener(window, 'click', (event) => {
     selectedObjs.value = getSelectedCube(event, camera, intersects);
   });
 
