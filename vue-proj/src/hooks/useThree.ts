@@ -207,6 +207,8 @@ export function useThree(id?: string) {
     );
 
     renderEffectStore.addEffects(controls.update.bind(controls));
+
+    return controls;
   }
 
   function initStats() {
@@ -215,10 +217,10 @@ export function useThree(id?: string) {
     document.getElementById('stats')?.appendChild(stats.dom);
     return stats;
   }
-
+  const orbit = initOrbit();
   function mount() {
     document.getElementById(id || 'three')?.appendChild(renderer.domElement);
-    initOrbit();
+
     initStats();
     window.requestAnimationFrame(render);
   }
@@ -245,6 +247,7 @@ export function useThree(id?: string) {
     renderEffectStore,
     mount,
     initOrbit,
+    orbit,
     camera: perspectiveCamera,
     dom: renderer.domElement,
   };
