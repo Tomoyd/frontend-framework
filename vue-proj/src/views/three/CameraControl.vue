@@ -55,8 +55,8 @@ const { addIntersectObj } = useThreeSelect<Mesh>(
     if (intersections.length <= 0) return;
     const obj = intersections[0].object;
 
-    const boxZ = new Box3().setFromObject(obj).max.z;
-    const distance = boxZ + 40;
+    // const boxZ = new Box3().setFromObject(obj).max.z;
+    const distance = 20;
     const theta = obj.rotation.y;
 
     const targetPosition = {
@@ -73,10 +73,7 @@ const { addIntersectObj } = useThreeSelect<Mesh>(
       ({ x, y, z }) => {
         three.camera.position.set(x, y, z);
       },
-      2000,
-      () => {
-        // three.orbit.enabled = true;
-      }
+      2000
     );
     tweenAnimate(
       three.orbit.target,
