@@ -8,7 +8,7 @@ jobs:
   build:
     env:
       MY_SECRET: ${{secrets.TOKEN}}
-      PUBLISH_DIR: vue-project/dist
+      PUBLISH_DIR: vue-proj/dist
     environment:
       name: production
       url: https://tomoyd.github.io/three/
