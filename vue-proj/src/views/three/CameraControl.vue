@@ -8,6 +8,7 @@
 <style></style>
 <script lang="ts" setup>
 import { getRandomNumber, tweenAnimate } from '@/common';
+import { loadObj } from '@/common/three';
 import VFixed from '@/components/ui/VFixed.vue';
 import { useWindowListener } from '@/hooks/useListener';
 import { useThree } from '@/hooks/useThree';
@@ -16,9 +17,11 @@ import type { PointArg } from '@/types';
 
 import {
   BoxGeometry,
+  BufferGeometry,
   Group,
   Mesh,
   MeshBasicMaterial,
+  MeshPhongMaterial,
   Vector3,
   type Intersection,
 } from 'three';
@@ -51,7 +54,7 @@ const handleSelected = (intersections: Intersection<Mesh>[]) => {
   if (intersections.length <= 0) return;
   const obj = intersections[0].object;
   const distance = 20;
-  const theta = obj.rotation.y;
+  const theta = obj.rotation.y || obj.parent?.rotation.y || 0;
   const targetPosition = {
     x: obj.position.x + Math.sin(theta) * distance,
     y: obj.position.y,
@@ -65,12 +68,27 @@ const handleSelected = (intersections: Intersection<Mesh>[]) => {
   });
 };
 
+const addObj = async () => {
+  const group = await loadObj('./three/models/baymax/Bigmax_White_OBJ.obj');
+  if (!group) return;
+  group.children.forEach((item) => {
+    (item as Mesh<BufferGeometry, MeshPhongMaterial>).material.emissive.set(
+      0xeeeeee * Math.random()
+    );
+  });
+  group.scale.set(0.1, 0.1, 0.1);
+  group.rotation.y = (Math.random() * Math.PI) / 2;
+  addIntersectObj(group.children as Mesh[]);
+  three.add(group);
+};
+
 const { addIntersectObj } = useThreeSelect<Mesh>(three.camera, handleSelected);
 
 useWindowListener(window, 'resize', three.resize);
 
 onMounted(() => {
   addBox();
+  addObj();
   three.mount();
   three.loopRender();
   three.camera.far = 100;
