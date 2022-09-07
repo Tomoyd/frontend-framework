@@ -55,3 +55,6 @@ export function debounce(fn: () => void, delay = 50) {
     timer = setTimeout(() => fn(), delay);
   };
 }
+
+export const getRandomNumber = (base = 40) =>
+  (Math.random() > 0.5 ? -1 : 1) * Math.random() * base;

@@ -7,11 +7,12 @@
 </template>
 <style></style>
 <script lang="ts" setup>
-import { tweenAnimate } from '@/common';
+import { getRandomNumber, tweenAnimate } from '@/common';
 import VFixed from '@/components/ui/VFixed.vue';
 import { useWindowListener } from '@/hooks/useListener';
 import { useThree } from '@/hooks/useThree';
 import { useThreeSelect } from '@/hooks/useThreeSelect';
+import type { PointArg } from '@/types';
 
 import {
   BoxGeometry,
@@ -31,17 +32,10 @@ const addBox = () => {
   const yRotation = Math.PI / 3;
   let i = 60;
   const group = new Group();
+  const array = [40, 40, 40];
   while (i > 0) {
     const newCube = box.clone();
-
-    const position = Array(3)
-      .fill(0)
-      .map(() => (Math.random() > 0.5 ? -1 : 1) * Math.random() * 40) as [
-      number,
-      number,
-      number
-    ];
-    newCube.position.set(...position);
+    newCube.position.set(...(array.map(getRandomNumber) as PointArg));
     newCube.material = box.material.clone();
     newCube.material.color.setRGB(Math.random(), Math.random(), Math.random());
     newCube.rotation.y = Math.random() * yRotation;
@@ -58,7 +52,6 @@ const handleSelected = (intersections: Intersection<Mesh>[]) => {
   const obj = intersections[0].object;
   const distance = 20;
   const theta = obj.rotation.y;
-  const cameraPosition = three.camera.position;
   const targetPosition = {
     x: obj.position.x + Math.sin(theta) * distance,
     y: obj.position.y,
@@ -66,8 +59,7 @@ const handleSelected = (intersections: Intersection<Mesh>[]) => {
   };
 
   three.orbit.enabled = false;
-
-  tweenAnimate(cameraPosition, targetPosition, undefined, 2000);
+  tweenAnimate(three.camera.position, targetPosition, undefined, 2000);
   tweenAnimate(three.orbit.target, obj.position, undefined, 2000, () => {
     three.orbit.enabled = true;
   });
