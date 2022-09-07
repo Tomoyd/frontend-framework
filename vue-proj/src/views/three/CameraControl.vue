@@ -1,8 +1,8 @@
 <template>
   <div id="three"></div>
   <div id="stats"></div>
-  <VFixed :left="100" :top="5">
-    <div style="color: #fff">点击物体进行视图锁定</div>
+  <VFixed :left="100" :top="5" style="opacity: 0.5; border-radius: 2px">
+    <div style="color: #fff; font-size: 10px">点击物体进行视图锁定</div>
   </VFixed>
 </template>
 <style></style>
@@ -50,7 +50,7 @@ const addBox = () => {
   three.add(group);
 };
 
-const handleSelected = (intersections: Intersection<Mesh>[]) => {
+const handleSelected = (intersections: Intersection[]) => {
   if (intersections.length <= 0) return;
   const obj = intersections[0].object;
   const distance = 20;
@@ -78,11 +78,14 @@ const addObj = async () => {
   });
   group.scale.set(0.1, 0.1, 0.1);
   group.rotation.y = (Math.random() * Math.PI) / 2;
-  addIntersectObj(group.children as Mesh[]);
+  addIntersectObj(group);
   three.add(group);
 };
 
-const { addIntersectObj } = useThreeSelect<Mesh>(three.camera, handleSelected);
+const { addIntersectObj } = useThreeSelect<Mesh | Group>(
+  three.camera,
+  handleSelected
+);
 
 useWindowListener(window, 'resize', three.resize);
 
