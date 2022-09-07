@@ -98,9 +98,8 @@ export function useThree(id?: string) {
   );
 
   perspectiveCamera.up.set(0, 1, 0);
-  perspectiveCamera.updateMatrix();
   perspectiveCamera.position.set(0, 0, 60);
-  perspectiveCamera.lookAt(new Vector3(0, 0, 1));
+  perspectiveCamera.lookAt(new Vector3(0, 0, 0));
 
   const renderer = new WebGLRenderer({ antialias: true });
   renderer.render(scene, perspectiveCamera);

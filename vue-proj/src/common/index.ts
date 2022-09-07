@@ -30,7 +30,7 @@ function getAnimate() {
 export function tweenAnimate<T extends object>(
   form: T,
   to: T,
-  update: (p: T) => void,
+  update: (p: T) => void = () => false,
   times = 1000,
   complete?: () => void
 ) {

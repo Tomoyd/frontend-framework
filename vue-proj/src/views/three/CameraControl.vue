@@ -1,21 +1,25 @@
 <template>
   <div id="three"></div>
   <div id="stats"></div>
+  <VFixed :left="100" :top="5">
+    <div style="color: #fff">点击物体进行视图锁定</div>
+  </VFixed>
 </template>
 <style></style>
 <script lang="ts" setup>
 import { tweenAnimate } from '@/common';
+import VFixed from '@/components/ui/VFixed.vue';
 import { useWindowListener } from '@/hooks/useListener';
 import { useThree } from '@/hooks/useThree';
 import { useThreeSelect } from '@/hooks/useThreeSelect';
 
 import {
-  AxesHelper,
-  Box3,
   BoxGeometry,
   Group,
   Mesh,
   MeshBasicMaterial,
+  Vector3,
+  type Intersection,
 } from 'three';
 import { onMounted } from 'vue';
 const three = useThree();
@@ -49,45 +53,27 @@ const addBox = () => {
   three.add(group);
 };
 
-const { addIntersectObj } = useThreeSelect<Mesh>(
-  three.camera,
-  (intersections) => {
-    if (intersections.length <= 0) return;
-    const obj = intersections[0].object;
+const handleSelected = (intersections: Intersection<Mesh>[]) => {
+  if (intersections.length <= 0) return;
+  const obj = intersections[0].object;
+  const distance = 20;
+  const theta = obj.rotation.y;
+  const cameraPosition = three.camera.position;
+  const targetPosition = {
+    x: obj.position.x + Math.sin(theta) * distance,
+    y: obj.position.y,
+    z: obj.position.z + Math.cos(theta) * distance,
+  };
 
-    // const boxZ = new Box3().setFromObject(obj).max.z;
-    const distance = 20;
-    const theta = obj.rotation.y;
+  three.orbit.enabled = false;
 
-    const targetPosition = {
-      x: obj.position.x + Math.sin(theta) * distance,
-      y: obj.position.y,
-      z: obj.position.z + Math.cos(theta) * distance,
-    };
+  tweenAnimate(cameraPosition, targetPosition, undefined, 2000);
+  tweenAnimate(three.orbit.target, obj.position, undefined, 2000, () => {
+    three.orbit.enabled = true;
+  });
+};
 
-    three.orbit.enabled = false;
-
-    tweenAnimate(
-      three.camera.position.clone(),
-      targetPosition,
-      ({ x, y, z }) => {
-        three.camera.position.set(x, y, z);
-      },
-      2000
-    );
-    tweenAnimate(
-      three.orbit.target,
-      obj.position,
-      () => {
-        console.log('1', 1);
-      },
-      2000,
-      () => {
-        three.orbit.enabled = true;
-      }
-    );
-  }
-);
+const { addIntersectObj } = useThreeSelect<Mesh>(three.camera, handleSelected);
 
 useWindowListener(window, 'resize', three.resize);
 
@@ -95,6 +81,9 @@ onMounted(() => {
   addBox();
   three.mount();
   three.loopRender();
-  three.add(new AxesHelper(30));
+  three.camera.far = 100;
+  const cameraPosition = three.camera.position;
+  cameraPosition.set(0, 0, 0);
+  tweenAnimate(cameraPosition, new Vector3(0, 0, 60), undefined, 2000);
 });
 </script>
