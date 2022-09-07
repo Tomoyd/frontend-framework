@@ -10,11 +10,10 @@
   top: 10px;
   position: fixed;
   background-color: #3d3d3d;
-  padding: 10px;
+  padding: 2px;
 }
 </style>
 
 <script lang="ts" setup>
-const props = defineProps<{ left?: number; top?: number }>();
-console.log('props.top', props.top);
+defineProps<{ left?: number; top?: number }>();
 </script>
