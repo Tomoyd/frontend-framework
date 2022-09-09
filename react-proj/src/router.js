@@ -15,4 +15,16 @@ export const routes = [
       import('./demos/optimization/ContentVisibility.jsx')
     ),
   },
+  {
+    path: '/demo/form/uncontrolled',
+    Component: React.lazy(() => import('./demos/form/Uncontrolled.jsx')),
+  },
+  {
+    path: '/demo/form/controlled',
+    Component: React.lazy(() => import('./demos/form/Controlled.jsx')),
+  },
+  {
+    path: '/demo/portal',
+    Component: React.lazy(() => import('./demos/portal/index.jsx')),
+  },
 ];

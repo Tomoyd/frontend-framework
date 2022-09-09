@@ -20,7 +20,7 @@ export const useScoreApiContext = () => {
   const ctx = useContext(ScoreApiContext);
   if (typeof ctx === 'undefined') {
     throw new Error(
-      'useScoreApiContext must be used within ScoreAPIContextProvider',
+      'useScoreApiContext must be used within ScoreAPIContextProvider'
     );
   }
   return ctx;
@@ -34,7 +34,7 @@ export const ScoreProvider = ({ children }) => {
       increaseScore: () => setScore((v) => v + 1),
       decreaseScore: () => setScore((v) => v - 1),
     }),
-    [setScore],
+    [setScore]
   );
 
   return (

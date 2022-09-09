@@ -6,7 +6,7 @@ import { routes } from './router';
 function App() {
   return (
     <div className='App'>
-      <Suspense>
+      <Suspense fallback={null}>
         <Router>
           <Routes>
             {routes.map(({ path, Component }) => {
