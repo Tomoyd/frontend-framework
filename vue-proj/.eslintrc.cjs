@@ -25,6 +25,12 @@ module.exports = {
         math: 'always',
       },
     ],
+    'vue/multi-word-component-names': [
+      'off',
+      {
+        ignores: [],
+      },
+    ],
     'arrow-body-style': 'off',
     'prefer-arrow-callback': 'off',
     'prettier/prettier': [

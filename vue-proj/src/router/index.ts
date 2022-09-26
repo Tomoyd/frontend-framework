@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import HomeView from '../views/HomeView.vue';
+import { builtinRoutes } from './builtin';
 
 const router = createRouter({
   history: createWebHistory('/'),
@@ -89,6 +90,7 @@ const router = createRouter({
       name: 'shader',
       component: () => import('../views/three/ComposerShader.vue'),
     },
+    ...builtinRoutes,
   ],
 });
 
