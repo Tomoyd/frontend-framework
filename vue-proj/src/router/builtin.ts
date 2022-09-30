@@ -3,7 +3,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/keep-alive',
     name: 'KeepAlive',
-    component: () => import('../views/builtin/KeepAlive/Index.vue'),
+    component: () => import('../views/builtin/keepAlive/Index.vue'),
+  },
+  {
+    path: '/attributes',
+    name: 'attributes',
+    component: () => import('../views/builtin/attributes/Index.vue'),
   },
 ];
 export const builtinRoutes = routes.map((item) => {
