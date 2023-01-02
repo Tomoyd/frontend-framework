@@ -10,6 +10,21 @@ const routes: RouteRecordRaw[] = [
     name: 'attributes',
     component: () => import('../views/builtin/attributes/Index.vue'),
   },
+  {
+    path: '/slot',
+    name: 'slot',
+    component: () => import('../views/builtin/slot/Index.vue'),
+  },
+  {
+    path: '/injection',
+    name: 'injection',
+    component: () => import('../views/builtin/injection/Index.vue'),
+  },
+  {
+    path: '/async',
+    name: 'async',
+    component: () => import('../views/builtin/async/Index.vue'),
+  },
 ];
 export const builtinRoutes = routes.map((item) => {
   item.path = `/builtin${item.path}`;
